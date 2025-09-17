@@ -1,5 +1,5 @@
-import { LoginForm } from "@/components/login-form"
+import { AuthRedirect } from "@/components/auth/auth-redirect";
 
 export default function HomePage() {
-  return <LoginForm />
+  return <AuthRedirect />;
 }

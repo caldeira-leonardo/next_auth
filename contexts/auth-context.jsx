@@ -6,14 +6,9 @@ import {
   verifyCodeAndLogin,
   refreshAccessToken,
   validateAccessToken,
-  getTokensFromStorage,
-  saveTokensToStorage,
-  removeTokensFromStorage,
-  getUserFromStorage,
-  saveUserToStorage,
-  removeUserFromStorage,
 } from "@/lib/auth"
-import { setAuthTokens, removeAuthTokens } from "@/lib/auth-cookies"
+import { loginWithAPI, logoutWithAPI } from "@/lib/api/auth-integration"
+import { setAuthTokens, removeAuthTokens, getAccessTokenCookie, getRefreshTokenCookie, getUserCookie, setUserCookie, removeUserCookie } from "@/lib/auth-cookies"
 
 const AuthContext = createContext(undefined)
 
@@ -26,25 +21,28 @@ export function AuthProvider({ children }) {
   }, [])
 
   const initializeAuth = async () => {
-    const storedUser = getUserFromStorage()
-    const tokens = getTokensFromStorage()
+    const storedUser = getUserCookie()
 
-    if (storedUser && tokens?.accessToken) {
-      const validation = validateAccessToken(tokens.accessToken)
+    if (storedUser) {
+      const accessToken = getAccessTokenCookie()
+      const refreshToken = getRefreshTokenCookie()
 
-      if (validation.valid) {
-        setUser(storedUser)
-        setAuthTokens(tokens.accessToken, tokens.refreshToken)
-      } else if (tokens.refreshToken) {
-        // Tenta renovar o token
-        const renewed = await attemptTokenRenewal(tokens.refreshToken)
-        if (renewed) {
+      if (accessToken) {
+        const validation = validateAccessToken(accessToken)
+
+        if (validation.valid) {
           setUser(storedUser)
+        } else if (refreshToken) {
+          const renewed = await attemptTokenRenewal(refreshToken)
+          if (renewed) {
+            setUser(storedUser)
+          } else {
+            logout()
+          }
         } else {
           logout()
         }
       } else {
-        // Sem tokens válidos, faz logout
         logout()
       }
     }
@@ -55,7 +53,6 @@ export function AuthProvider({ children }) {
   const attemptTokenRenewal = async (refreshToken) => {
     try {
       const refreshResult = await refreshAccessToken(refreshToken)
-      saveTokensToStorage(refreshResult.accessToken, refreshToken)
       setAuthTokens(refreshResult.accessToken, refreshToken)
       return true
     } catch (error) {
@@ -66,14 +63,11 @@ export function AuthProvider({ children }) {
 
   const sendCode = async (email) => {
     setIsLoading(true)
-    console.log("[v0] AuthContext sendCode chamado com:", email)
 
     try {
       const result = await sendVerificationCode(email)
-      console.log("[v0] sendVerificationCode resultado:", result)
-      return true
+      return result.success
     } catch (error) {
-      console.error("[v0] Erro ao enviar código:", error)
       return false
     } finally {
       setIsLoading(false)
@@ -82,15 +76,22 @@ export function AuthProvider({ children }) {
 
   const verifyCode = async (email, code) => {
     setIsLoading(true)
+
     try {
+      const apiResult = await loginWithAPI(email, code)
+
+      if (apiResult.success) {
+        setUser(apiResult.user)
+        setUserCookie(apiResult.user)
+        return true
+      }
+
       const result = await verifyCodeAndLogin(email, code)
-
       setUser(result.user)
-      saveUserToStorage(result.user)
-      saveTokensToStorage(result.accessToken, result.refreshToken)
+      setUserCookie(result.user)
       setAuthTokens(result.accessToken, result.refreshToken)
-
       return true
+
     } catch (error) {
       console.error("Erro ao verificar código:", error)
       return false
@@ -100,27 +101,39 @@ export function AuthProvider({ children }) {
   }
 
   const renewToken = async () => {
-    const tokens = getTokensFromStorage()
+    const refreshToken = getRefreshTokenCookie()
+    const accessToken = getAccessTokenCookie()
 
-    if (!tokens?.refreshToken) {
+    if (!refreshToken) {
       return false
     }
 
-    if (tokens.accessToken) {
-      const validation = validateAccessToken(tokens.accessToken)
+    if (accessToken) {
+      const validation = validateAccessToken(accessToken)
       if (validation.valid) {
-        return true // Token ainda válido, não precisa renovar
+        return true
       }
     }
 
-    return await attemptTokenRenewal(tokens.refreshToken)
+    return await attemptTokenRenewal(refreshToken)
   }
 
-  const logout = () => {
-    setUser(null)
-    removeUserFromStorage()
-    removeTokensFromStorage()
-    removeAuthTokens()
+  const loginUser = (user, accessToken = '', refreshToken = '') => {
+    setUser(user)
+    setUserCookie(user)
+    setAuthTokens(accessToken, refreshToken)
+  }
+
+  const logout = async () => {
+    try {
+      await logoutWithAPI()
+    } catch (error) {
+      console.error("Erro no logout da API:", error)
+    } finally {
+      setUser(null)
+      removeUserCookie()
+      removeAuthTokens()
+    }
   }
 
   const isAuthenticated = () => {
@@ -146,6 +159,7 @@ export function AuthProvider({ children }) {
         verifyCode,
         renewToken,
         logout,
+        loginUser,
         isLoading,
         isAuthenticated,
         getCurrentUser,
