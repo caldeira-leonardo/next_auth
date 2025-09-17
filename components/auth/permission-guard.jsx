@@ -2,20 +2,12 @@
 
 import { usePermissions } from "@/hooks/use-permissions"
 
-export function PermissionGuard({ children, requiredPermission, allowedRoles, fallback = null }) {
-  const { checkPermission, checkRole } = usePermissions()
+export function PermissionGuard({ permission, children, fallback = null }) {
+  const { checkPermission } = usePermissions()
 
-  let hasAccess = false
-
-  if (requiredPermission) {
-    hasAccess = checkPermission(requiredPermission)
-  } else if (allowedRoles) {
-    hasAccess = checkRole(allowedRoles)
+  if (!checkPermission(permission)) {
+    return fallback
   }
 
-  if (!hasAccess) {
-    return <>{fallback}</>
-  }
-
-  return <>{children}</>
+  return children
 }

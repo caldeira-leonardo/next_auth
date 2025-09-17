@@ -1,36 +1,27 @@
 "use client"
 
-import { useAuth } from "@/contexts/auth-context"
-import { UserMenu } from "./user-menu"
-import { MobileNav } from "./mobile-nav"
-import { Breadcrumb } from "./breadcrumb"
+import { usePathname } from "next/navigation"
+import { cn } from "@/lib/utils"
 
-export function PageHeader({ title, description }) {
-  const { user } = useAuth()
+const pageTitles = {
+  "/dashboard": "Dashboard",
+  "/clientes": "Clientes",
+  "/usuarios": "Usuários",
+  "/fornecedores": "Fornecedores",
+}
+
+export function PageHeader({ className, children, ...props }) {
+  const pathname = usePathname()
+  const title = pageTitles[pathname] || "Página"
 
   return (
-    <div className="border-b bg-white">
-      <div className="flex h-16 items-center px-4 md:px-6">
-        <MobileNav />
-        <div className="flex-1 ml-4 md:ml-0">
-          <h1 className="text-xl font-semibold md:hidden">{title}</h1>
-          <div className="hidden md:block">
-            <Breadcrumb />
-          </div>
+    <div className={cn("border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60", className)} {...props}>
+      <div className="container flex h-14 items-center">
+        <div className="mr-4 hidden md:flex">
+          <h1 className="text-lg font-semibold">{title}</h1>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="hidden md:flex items-center gap-2 text-sm">
-            <span className="text-muted-foreground">Logado como:</span>
-            <span className="font-medium">{user?.name}</span>
-          </div>
-          <UserMenu />
-        </div>
+        {children}
       </div>
-      {description && (
-        <div className="px-4 md:px-6 pb-4">
-          <p className="text-sm text-muted-foreground">{description}</p>
-        </div>
-      )}
     </div>
   )
 }

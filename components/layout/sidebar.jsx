@@ -1,69 +1,87 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { usePermissions } from "@/hooks/use-permissions"
-import { LayoutDashboard, Users, UserCheck, Building2 } from "lucide-react"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { usePermissions } from "@/hooks/use-permissions";
 
-const navigation = [
-  {
-    name: "Dashboard",
-    href: "/dashboard",
-    icon: LayoutDashboard,
-    permission: "dashboard",
-  },
-  {
-    name: "Clientes",
-    href: "/clientes",
-    icon: Users,
-    permission: "clientes",
-  },
-  {
-    name: "Usuários",
-    href: "/usuarios",
-    icon: UserCheck,
-    permission: "usuarios",
-  },
-  {
-    name: "Fornecedores",
-    href: "/fornecedores",
-    icon: Building2,
-    permission: "fornecedores",
-  },
-]
+// Modernize-styled Sidebar supporting vertical and horizontal layouts
+// Pass layout="vertical" | "horizontal" and items=[{ name, href, iconClass, permission, children?: [...] }]
 
-export function Sidebar() {
-  const pathname = usePathname()
-  const { checkPermission } = usePermissions()
+export function Sidebar({ layout = "vertical", items = [] }) {
+  const pathname = usePathname();
+  const { checkPermission } = usePermissions();
+
+  const renderItem = (item) => {
+    const isActive = pathname === item.href;
+    const hasPermission = !item.permission || checkPermission(item.permission);
+    if (!hasPermission) return null;
+
+    if (item.children && item.children.length > 0) {
+      return (
+        <li className="sidebar-item" key={item.name}>
+          <button
+            className="sidebar-link has-arrow"
+            type="button"
+            aria-expanded="false"
+            onClick={(e) => {
+              e.preventDefault();
+              const target = e.currentTarget;
+              const isExpanded = target.getAttribute('aria-expanded') === 'true';
+              target.setAttribute('aria-expanded', !isExpanded);
+              const ul = target.nextElementSibling;
+              if (ul) {
+                ul.classList.toggle('show');
+              }
+            }}
+          >
+            <span className="d-flex">
+              {item.iconClass ? (
+                <i className={item.iconClass}></i>
+              ) : (
+                <i className="ti ti-circle"></i>
+              )}
+            </span>
+            <span className="hide-menu">{item.name}</span>
+          </button>
+          <ul aria-expanded="false" className="collapse first-level">
+            {item.children.map((child) =>
+              renderItem({ ...child, isChild: true })
+            )}
+          </ul>
+        </li>
+      );
+    }
+
+    return (
+      <li className="sidebar-item" key={item.name}>
+        <Link className="sidebar-link" href={item.href} aria-expanded="false">
+          <span>
+            {item.iconClass ? (
+              <i className={item.iconClass}></i>
+            ) : (
+              <i className="ti ti-circle"></i>
+            )}
+          </span>
+          <span className="hide-menu">{item.name}</span>
+        </Link>
+      </li>
+    );
+  };
+
+  if (layout === "horizontal") {
+    return (
+      <nav
+        id="sidebarnavh"
+        className="sidebar-nav scroll-sidebar container-fluid"
+      >
+        <ul id="sidebarnav">{items.map((item) => renderItem(item))}</ul>
+      </nav>
+    );
+  }
 
   return (
-    <div className="flex h-full w-64 flex-col bg-gray-50 border-r">
-      <div className="flex h-16 items-center px-6 border-b">
-        <h2 className="text-lg font-semibold">Sistema de Gestão</h2>
-      </div>
-      <nav className="flex-1 space-y-1 p-4">
-        {navigation.map((item) => {
-          const hasPermission = checkPermission(item.permission)
-          const isActive = pathname === item.href
-
-          if (!hasPermission) return null
-
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                isActive ? "bg-primary text-primary-foreground" : "text-gray-700 hover:bg-gray-100 hover:text-gray-900",
-              )}
-            >
-              <item.icon className="h-4 w-4" />
-              {item.name}
-            </Link>
-          )
-        })}
-      </nav>
-    </div>
-  )
+    <nav className="sidebar-nav scroll-sidebar" data-simplebar>
+      <ul id="sidebarnav">{items.map((item) => renderItem(item))}</ul>
+    </nav>
+  );
 }
