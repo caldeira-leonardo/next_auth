@@ -1,24 +1,24 @@
-"use client"
+'use client';
 
-import { Badge } from "@/components/ui/badge"
+import { Badge } from '@/components/ui/badge';
 
 const roleConfig = {
   admin: {
-    label: "Administrador",
-    variant: "destructive",
+    label: 'Administrador',
+    variant: 'destructive',
   },
   gestor: {
-    label: "Gestor",
-    variant: "default",
+    label: 'Gestor',
+    variant: 'default',
   },
   usuario: {
-    label: "Usuário",
-    variant: "secondary",
+    label: 'Usuário',
+    variant: 'secondary',
   },
-}
+};
 
 export function RoleBadge({ role }) {
-  const config = roleConfig[role]
+  const config = roleConfig[role];
 
-  return <Badge variant={config.variant}>{config.label}</Badge>
+  return <Badge variant={config.variant}>{config.label}</Badge>;
 }

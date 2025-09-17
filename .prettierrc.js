@@ -45,6 +45,4 @@ module.exports = {
   requirePragma: false,
 
   // Formatar todo o arquivo
-  rangeStart: 0,
-  rangeEnd: null,
 };

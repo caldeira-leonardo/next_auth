@@ -6,8 +6,8 @@
     "build": "next build",
     "dev": "next dev",
     "start": "next start",
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format": "npx prettier --write .",
+    "format:check": "npx prettier --check ."
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

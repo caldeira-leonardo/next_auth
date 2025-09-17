@@ -1,13 +1,13 @@
-"use client"
+'use client';
 
-import { usePermissions } from "@/hooks/use-permissions"
+import { usePermissions } from '@/hooks/use-permissions';
 
 export function PermissionGuard({ permission, children, fallback = null }) {
-  const { checkPermission } = usePermissions()
+  const { checkPermission } = usePermissions();
 
   if (!checkPermission(permission)) {
-    return fallback
+    return fallback;
   }
 
-  return children
+  return children;
 }
