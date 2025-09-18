@@ -1,29 +1,13 @@
 import { NextResponse } from 'next/server';
+import { ROUTES } from './lib/routes';
 
 // Função para validar access token no servidor
 function validateAccessToken(accessToken) {
-  try {
-    const decoded = JSON.parse(atob(accessToken));
-
-    if (decoded.type !== 'access') {
-      return { valid: false, reason: 'Token inválido' };
-    }
-
-    if (Date.now() > decoded.exp) {
-      return { valid: false, reason: 'Token expirado' };
-    }
-
-    return {
-      valid: true,
-      user: {
-        id: decoded.userId,
-        email: decoded.email,
-        role: decoded.role,
-      },
-    };
-  } catch (error) {
-    return { valid: false, reason: 'Token malformado' };
+  if (!accessToken) {
+    return { valid: false, reason: 'Token não encontrado' };
   }
+
+  return { valid: true };
 }
 
 // Função para renovar access token no servidor
@@ -39,7 +23,6 @@ async function refreshAccessToken(refreshToken) {
       throw new Error('Refresh token expirado');
     }
 
-    // Simula busca do usuário (em produção seria uma consulta ao banco)
     const mockUsers = [
       { id: '1', email: 'admin@empresa.com', role: 'admin' },
       { id: '2', email: 'gestor@empresa.com', role: 'gestor' },
@@ -51,7 +34,6 @@ async function refreshAccessToken(refreshToken) {
       throw new Error('Usuário não encontrado');
     }
 
-    // Gera novo access token
     const now = Date.now();
     const newAccessToken = btoa(
       JSON.stringify({
@@ -60,7 +42,7 @@ async function refreshAccessToken(refreshToken) {
         role: user.role,
         type: 'access',
         iat: now,
-        exp: now + 2 * 60 * 60 * 1000, // 2 horas
+        exp: now + 2 * 60 * 60 * 1000,
       })
     );
 
@@ -73,111 +55,124 @@ async function refreshAccessToken(refreshToken) {
 export async function middleware(request) {
   const { pathname } = request.nextUrl;
 
-  // Ignora verificação para assets e arquivos estáticos
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
     pathname.includes('.') ||
-    pathname === '/favicon.ico'
+    pathname === '/favicon.ico' ||
+    pathname === ROUTES.PUBLIC.NOTE_FOUND
   ) {
     return NextResponse.next();
   }
 
-  // Rotas que requerem autenticação
-  const protectedRoutes = ['/dashboard', '/clientes', '/usuarios', '/fornecedores'];
+  const protectedRoutes = [...Object.values(ROUTES.PROTECTED)];
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
 
   if (isProtectedRoute) {
     const accessToken = request.cookies.get('access-token')?.value;
     const refreshToken = request.cookies.get('refresh-token')?.value;
 
-    // Se não há access token, verifica se há refresh token
     if (!accessToken) {
       if (!refreshToken) {
-        // Sem tokens, redireciona para login
-        const loginUrl = new URL('/', request.url);
+        const loginUrl = new URL(ROUTES.PUBLIC.LOGIN, request.url);
         loginUrl.searchParams.set('redirect', pathname);
         return NextResponse.redirect(loginUrl);
       }
 
       // Tenta renovar usando refresh token
-      try {
-        const refreshResult = await refreshAccessToken(refreshToken);
-        const response = NextResponse.next();
+      // try {
+      //   const refreshResult = await refreshAccessToken(refreshToken);
+      //   const response = NextResponse.next();
 
-        // Define novo access token no cookie
-        const expires = new Date();
-        expires.setHours(expires.getHours() + 2);
+      //   // Define novo access token no cookie
+      //   const expires = new Date();
+      //   expires.setHours(expires.getHours() + 2);
 
-        response.cookies.set('access-token', refreshResult.accessToken, {
-          expires,
-          path: '/',
-          sameSite: 'strict',
-          secure: process.env.NODE_ENV === 'production',
-        });
+      //   response.cookies.set('access-token', refreshResult.accessToken, {
+      //     expires,
+      //     path: '/',
+      //     sameSite: 'strict',
+      //     secure: process.env.NODE_ENV === 'production',
+      //   });
 
-        return response;
-      } catch (error) {
-        // Falha na renovação, redireciona para login
-        const loginUrl = new URL('/', request.url);
-        loginUrl.searchParams.set('redirect', pathname);
+      //   return response;
+      // } catch (error) {
+      //   // Falha na renovação, redireciona para login
+      //   const loginUrl = new URL(ROUTES.PUBLIC.LOGIN, request.url);
+      //   loginUrl.searchParams.set('redirect', pathname);
 
-        const response = NextResponse.redirect(loginUrl);
-        // Remove cookies inválidos
-        response.cookies.delete('access-token');
-        response.cookies.delete('refresh-token');
+      //   const response = NextResponse.redirect(loginUrl);
+      //   // Remove cookies inválidos
+      //   response.cookies.delete('access-token');
+      //   response.cookies.delete('refresh-token');
 
-        return response;
-      }
+      //   return response;
+      // }
+
+      // Por enquanto, sem refresh token, redireciona para login
+      const loginUrl = new URL(ROUTES.PUBLIC.LOGIN, request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
     }
 
     // Verifica se o access token é válido
     const validation = validateAccessToken(accessToken);
 
     if (!validation.valid) {
-      if (validation.reason === 'Token expirado' && refreshToken) {
-        // Token expirado, tenta renovar
-        try {
-          const refreshResult = await refreshAccessToken(refreshToken);
-          const response = NextResponse.next();
+      // COMENTADO - refresh token não implementado no backend
+      // if (validation.reason === 'Token expirado' && refreshToken) {
+      //   // Token expirado, tenta renovar
+      //   try {
+      //     const refreshResult = await refreshAccessToken(refreshToken);
+      //     const response = NextResponse.next();
 
-          // Define novo access token no cookie
-          const expires = new Date();
-          expires.setHours(expires.getHours() + 2);
+      //     // Define novo access token no cookie
+      //     const expires = new Date();
+      //     expires.setHours(expires.getHours() + 2);
 
-          response.cookies.set('access-token', refreshResult.accessToken, {
-            expires,
-            path: '/',
-            sameSite: 'strict',
-            secure: process.env.NODE_ENV === 'production',
-          });
+      //     response.cookies.set('access-token', refreshResult.accessToken, {
+      //       expires,
+      //       path: '/',
+      //       sameSite: 'strict',
+      //       secure: process.env.NODE_ENV === 'production',
+      //     });
 
-          return response;
-        } catch (error) {
-          // Falha na renovação, redireciona para login
-          const loginUrl = new URL('/', request.url);
-          loginUrl.searchParams.set('redirect', pathname);
+      //     return response;
+      //   } catch (error) {
+      //     // Falha na renovação, redireciona para login
+      //     const loginUrl = new URL(ROUTES.PUBLIC.LOGIN, request.url);
+      //     loginUrl.searchParams.set('redirect', pathname);
 
-          const response = NextResponse.redirect(loginUrl);
-          // Remove cookies inválidos
-          response.cookies.delete('access-token');
-          response.cookies.delete('refresh-token');
+      //     const response = NextResponse.redirect(loginUrl);
+      //     // Remove cookies inválidos
+      //     response.cookies.delete('access-token');
+      //     response.cookies.delete('refresh-token');
 
-          return response;
-        }
-      } else {
-        // Token inválido sem possibilidade de renovação
-        const loginUrl = new URL('/', request.url);
-        loginUrl.searchParams.set('redirect', pathname);
+      //     return response;
+      //   }
+      // } else {
+      //   // Token inválido sem possibilidade de renovação
+      //   const loginUrl = new URL(ROUTES.PUBLIC.LOGIN, request.url);
+      //   loginUrl.searchParams.set('redirect', pathname);
 
-        const response = NextResponse.redirect(loginUrl);
-        // Remove cookies inválidos
-        response.cookies.delete('access-token');
-        response.cookies.delete('refresh-token');
+      //   const response = NextResponse.redirect(loginUrl);
+      //   // Remove cookies inválidos
+      //   response.cookies.delete('access-token');
+      //   response.cookies.delete('refresh-token');
 
-        return response;
-      }
+      //   return response;
+      // }
+
+      const loginUrl = new URL(ROUTES.PUBLIC.LOGIN, request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+
+      const response = NextResponse.redirect(loginUrl);
+      response.cookies.delete('access-token');
+      // response.cookies.delete('refresh-token'); // COMENTADO - refresh token não implementado
+
+      return response;
     }
+
   }
 
   return NextResponse.next();
