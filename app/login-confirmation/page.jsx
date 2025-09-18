@@ -13,12 +13,10 @@ export default function LoginConfirmation() {
   const router = useRouter();
   const [email, setEmail] = useState('');
 
-  // Hook para validação do formulário
   const defaultFormValues = useMemo(() => ({ code: '' }), []);
   const { values, errors, setValue, setFieldTouched, validateForm, getFieldError } =
     useFormValidator(defaultFormValues);
 
-  // Hook para autenticação com API
   const { loading, error: apiError, verifyCodeAndLogin, backToEmail, clearError } = useAuthApi();
 
   useEffect(() => {
@@ -26,7 +24,7 @@ export default function LoginConfirmation() {
     if (emailParam) {
       setEmail(decodeURIComponent(emailParam));
     } else {
-      // router.push("/login");
+      router.push(ROUTES.PUBLIC.LOGIN);
       console.log('🔐 Email não encontrado');
     }
   }, [searchParams, router]);
@@ -35,18 +33,13 @@ export default function LoginConfirmation() {
     e.preventDefault();
     e.stopPropagation();
 
-    // Limpar erros anteriores
     clearError();
 
-    // Validar formulário
     const isValid = validateForm({
       code: ['required', 'numeric', 'minLength(6)'],
     });
 
     if (isValid) {
-      console.log('🔐 Código válido, fazendo login:', { email, code: values.code });
-
-      // Verificar código e fazer login via API
       const success = await verifyCodeAndLogin(email, values.code);
       if (!success) {
         console.log('❌ Falha no login');
@@ -56,9 +49,6 @@ export default function LoginConfirmation() {
     }
   };
 
-  /**
-   * Voltar para a página de login (email)
-   */
   const handleBackToLogin = () => {
     backToEmail();
   };
@@ -115,7 +105,6 @@ export default function LoginConfirmation() {
                           Voltar ao Login
                         </button>
 
-                        {/* Mostrar erro da API se houver */}
                         {apiError && (
                           <div className='alert alert-danger mt-3' role='alert'>
                             {apiError}

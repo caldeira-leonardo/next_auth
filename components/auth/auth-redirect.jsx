@@ -8,19 +8,18 @@ import { FullScreenSpinner } from '@/components/ui/loading-spinner';
 
 export function AuthRedirect() {
   const { user, isLoading } = useAuth();
-  const router = useRouter();
   const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
-    if (isLoading) return;
-
-    // Não redirecionar se estivermos na página de confirmação de login
-    if (pathname === ROUTES.PUBLIC.LOGIN_CONFIRMATION) {
+    if (isLoading || pathname === ROUTES.PUBLIC.LOGIN_CONFIRMATION) {
       return;
     }
 
     if (user) {
-      router.replace(ROUTES.PROTECTED.DASHBOARD);
+      setTimeout(() => {
+        router.replace(ROUTES.PROTECTED.DASHBOARD);
+      }, 200);
     } else {
       router.replace(ROUTES.PUBLIC.LOGIN);
     }
