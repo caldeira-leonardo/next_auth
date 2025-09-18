@@ -7,7 +7,7 @@ import { BarChart3, Users, UserCheck, Building2 } from 'lucide-react';
 
 export default function DashboardPage() {
   return (
-    <ProtectedRoute requiredPermission='dashboard'>
+    <ProtectedRoute>
       <div className='flex h-screen bg-gray-50'>
         <div className='hidden md:block'>
           <Sidebar />
