@@ -1,39 +1,37 @@
 'use client';
 
 import { useAuth } from '@/contexts/auth-context';
-import { hasPermission, hasAnyPermission, getUserPermissions, canAccessRoute } from '@/lib/permissions';
+import { hasPermission, hasWritePermission, hasReadPermission, canAccessRoute } from '@/lib/permissions';
 
 export function usePermissions() {
   const { user } = useAuth();
 
-  const checkPermission = (page) => {
+  const checkPermission = (permission) => {
     if (!user) return false;
-    return hasPermission(user.role, page);
+    return hasPermission(user, permission);
   };
 
-  const checkAnyPermission = (pages) => {
+  const checkWritePermission = (permission) => {
     if (!user) return false;
-    return hasAnyPermission(user.role, pages);
+    return hasWritePermission(user, permission);
+  };
+
+  const checkReadPermission = (permission) => {
+    if (!user) return false;
+    return hasReadPermission(user, permission);
   };
 
   const checkRouteAccess = (route) => {
     if (!user) return false;
-    return canAccessRoute(user.role, route);
+    return canAccessRoute(user, route);
   };
-
-  const checkRole = (allowedRoles) => {
-    if (!user) return false;
-    return allowedRoles.includes(user.role);
-  };
-
-  const userPermissions = user ? getUserPermissions(user.role) : [];
 
   return {
     checkPermission,
-    checkAnyPermission,
+    checkWritePermission,
+    checkReadPermission,
     checkRouteAccess,
-    checkRole,
-    userPermissions,
-    userRole: user?.role || null,
+    userPermissions: user?.permissions || [],
+    user,
   };
 }

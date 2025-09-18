@@ -3,7 +3,8 @@
 import { useAuth } from '@/contexts/auth-context';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
-import { isPublicRoute, requiresAuth, getDefaultRedirectAfterLogout, hasRoutePermission, ROUTES } from '@/lib/routes';
+import { isPublicRoute, requiresAuth, getDefaultRedirectAfterLogout, ROUTES } from '@/lib/routes';
+import { canAccessRoute } from '@/lib/permissions';
 import { FullScreenSpinner } from '@/components/ui/loading-spinner';
 
 export function RouteGuard({ children }) {
@@ -13,6 +14,10 @@ export function RouteGuard({ children }) {
 
   useEffect(() => {
     if (isLoading) return;
+
+    if (pathname === ROUTES.PUBLIC.NOTE_FOUND) {
+      return;
+    }
 
     if (!user && requiresAuth(pathname)) {
       router.push(getDefaultRedirectAfterLogout());
@@ -25,9 +30,10 @@ export function RouteGuard({ children }) {
     }
 
     if (user && requiresAuth(pathname)) {
-      const userRole = user.role || 'usuario';
-      if (!hasRoutePermission(pathname, userRole)) {
-        router.push(ROUTES.PROTECTED.DASHBOARD);
+      const hasAccess = canAccessRoute(user, pathname);
+
+      if (!hasAccess) {
+        router.push(ROUTES.PUBLIC.NOTE_FOUND);
         return;
       }
     }
@@ -37,5 +43,6 @@ export function RouteGuard({ children }) {
     return <FullScreenSpinner message='Verificando autenticação...' />;
   }
 
+  console.log('🔒 RouteGuard - Retornando children para pathname:', pathname);
   return children;
 }
