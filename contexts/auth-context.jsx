@@ -14,13 +14,21 @@ export function AuthProvider({ children }) {
   }, []);
 
   const initializeAuth = async () => {
-    const storedUser = getUserLS();
+    try {
+      const storedUser = getUserLS();
 
-    if (storedUser) {
-      setUser(storedUser);
+      if (storedUser) {
+        const userWithPermissions = {
+          ...storedUser,
+        };
+        setUser(userWithPermissions);
+      }
+    } catch (error) {
+      removeUserLS();
+      removeAuthTokens();
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
 
