@@ -1,19 +1,14 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect } from 'react';
-import { useNavigation } from '@/hooks/use-navigation';
+import { useRouter } from 'next/navigation';
 
 export default function NotFoundPage() {
-  const { goBack, goToPreviousPage } = useNavigation();
+  const router = useRouter();
 
-  useEffect(() => {
-    // const timer = setTimeout(() => {
-    //   goToPreviousPage();
-    // }, 5000);
-
-    // return () => clearTimeout(timer);
-  }, [goToPreviousPage]);
+  const goBack = () => {
+    router.back();
+  };
 
   return (
     <div className='min-h-screen flex items-center justify-center bg-gray-50'>

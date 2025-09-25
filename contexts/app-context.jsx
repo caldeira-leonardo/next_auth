@@ -10,28 +10,8 @@ export function AppProvider({ children }) {
 
   useEffect(() => {
     // Carrega a logo uma única vez quando a aplicação inicia
-    const loadLogo = () => {
-      try {
-        // Cria um objeto Image para pré-carregar a logo
-        const img = new Image();
-        img.onload = () => {
-          setLogo('/logo_full.svg'); // Caminho público da logo
-          setIsLoading(false);
-        };
-        img.onerror = () => {
-          console.warn('Logo não encontrada, usando placeholder');
-          setLogo('/placeholder-logo.svg'); // Fallback para placeholder
-          setIsLoading(false);
-        };
-        img.src = '/logo_full.svg';
-      } catch (error) {
-        console.error('Erro ao carregar logo:', error);
-        setLogo('/placeholder-logo.svg');
-        setIsLoading(false);
-      }
-    };
-
-    loadLogo();
+    setLogo('/logo_full.svg');
+    setIsLoading(false);
   }, []);
 
   // Configurações da aplicação
