@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/next';
 import { AuthProvider } from '@/contexts/auth-context';
 import { AppProvider } from '@/contexts/app-context';
 import { RouteGuard } from '@/components/auth/route-guard';
+import LayoutWrapper from '@/components/layout/layout-wrapper';
 import { FullScreenSpinner } from '@/components/ui/loading-spinner';
 import { Suspense } from 'react';
 import Script from 'next/script';
@@ -19,7 +20,9 @@ export default function RootLayout({ children }) {
         <Suspense fallback={<FullScreenSpinner message='Inicializando aplicação...' />}>
           <AppProvider>
             <AuthProvider>
-              <RouteGuard>{children}</RouteGuard>
+              <RouteGuard>
+                <LayoutWrapper>{children}</LayoutWrapper>
+              </RouteGuard>
             </AuthProvider>
           </AppProvider>
         </Suspense>

@@ -4,8 +4,11 @@ import { useFormValidator } from '@/hooks/use-form-validator';
 import { useMemo } from 'react';
 import { LoginLogo } from '@/components/ui/logo';
 import { useAuthApi } from '@/hooks/use-auth-api';
+import { useSearchParams } from 'next/navigation';
 
 export default function LoginPage() {
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams.get('redirect');
   // Hook para validação do formulário
   const defaultFormValues = useMemo(() => ({ email: '' }), []);
   const { values, errors, setValue, setFieldTouched, validateForm, getFieldError } =
@@ -29,7 +32,7 @@ export default function LoginPage() {
       console.log('📧 Formulário válido, enviando código para:', values.email);
 
       // Enviar código de verificação via API
-      const success = await sendVerificationCode(values.email);
+      const success = await sendVerificationCode(values.email, redirectUrl);
 
       if (!success) {
         console.log('❌ Falha ao enviar código');
