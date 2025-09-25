@@ -13,14 +13,14 @@ export function ProtectedRoute({ children, requiredPermission, fallback }) {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push(ROUTES.PUBLIC.LOGIN);
+      router.push(ROUTES.PUBLIC.LOGIN.URL);
     }
   }, [user, isLoading, router]);
 
   useEffect(() => {
     if (user && requiredPermission && !checkPermission(requiredPermission)) {
       if (!fallback) {
-        router.push(ROUTES.PUBLIC.NOTE_FOUND);
+        router.push(ROUTES.PUBLIC.NOTE_FOUND.URL);
       }
     }
   }, [user, requiredPermission, checkPermission, fallback, router]);

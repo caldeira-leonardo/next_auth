@@ -16,7 +16,7 @@ export function useNavigation() {
           const url = new URL(referrer);
           const pathname = url.pathname;
 
-          if (!pathname.includes(ROUTES.PUBLIC.NOTE_FOUND) && !pathname.includes(ROUTES.PUBLIC.LOGIN)) {
+          if (!pathname.includes(ROUTES.PUBLIC.NOTE_FOUND.URL) && !pathname.includes(ROUTES.PUBLIC.LOGIN.URL)) {
             setPreviousPage(pathname);
           }
         } catch (error) {

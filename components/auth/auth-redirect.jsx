@@ -12,16 +12,16 @@ export function AuthRedirect() {
   const router = useRouter();
 
   useEffect(() => {
-    if (isLoading || pathname === ROUTES.PUBLIC.LOGIN_CONFIRMATION) {
+    if (isLoading || pathname === ROUTES.PUBLIC.LOGIN_CONFIRMATION.URL) {
       return;
     }
 
     if (user) {
       setTimeout(() => {
-        router.replace(ROUTES.PROTECTED.DASHBOARD);
+        router.replace(ROUTES.PROTECTED.DASHBOARD.URL);
       }, 200);
     } else {
-      router.replace(ROUTES.PUBLIC.LOGIN);
+      router.replace(ROUTES.PUBLIC.LOGIN.URL);
     }
   }, [user, isLoading, router, pathname]);
 

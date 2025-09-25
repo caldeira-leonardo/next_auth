@@ -15,34 +15,31 @@ export function RouteGuard({ children }) {
   useEffect(() => {
     if (isLoading) return;
 
-    if (pathname === ROUTES.PUBLIC.NOTE_FOUND) {
+    if (!requiresAuth(pathname)) {
       return;
     }
 
-    if (!user && requiresAuth(pathname)) {
-      router.push(getDefaultRedirectAfterLogout());
+    if (pathname === ROUTES.PUBLIC.NOTE_FOUND.URL) {
       return;
     }
 
-    if (user && isPublicRoute(pathname)) {
-      router.push(ROUTES.PROTECTED.DASHBOARD);
-      return;
-    }
+    if (requiresAuth(pathname)) {
+      if (!user) {
+        router.push(getDefaultRedirectAfterLogout());
+        return;
+      }
 
-    if (user && requiresAuth(pathname)) {
       const hasAccess = canAccessRoute(user, pathname);
-
       if (!hasAccess) {
-        router.push(ROUTES.PUBLIC.NOTE_FOUND);
+        router.push(ROUTES.PUBLIC.NOTE_FOUND.URL);
         return;
       }
     }
   }, [user, isLoading, router, pathname]);
 
-  if (isLoading) {
+  if (isLoading && requiresAuth(pathname)) {
     return <FullScreenSpinner message='Verificando autenticação...' />;
   }
 
-  console.log('🔒 RouteGuard - Retornando children para pathname:', pathname);
   return children;
 }

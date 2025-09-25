@@ -14,14 +14,18 @@ export function useAuthApi() {
   const { loginUser } = useAuth();
 
   const sendVerificationCode = useCallback(
-    async (email) => {
+    async (email, redirectUrl = null) => {
       setLoading(true);
       setError(null);
 
       try {
         const response = await authService.sendVerificationCode(email);
 
-        router.push(`${ROUTES.PUBLIC.LOGIN_CONFIRMATION}?email=${encodeURIComponent(email)}`);
+        const confirmationUrl = redirectUrl
+          ? `${ROUTES.PUBLIC.LOGIN_CONFIRMATION.URL}?email=${encodeURIComponent(email)}&redirect=${encodeURIComponent(redirectUrl)}`
+          : `${ROUTES.PUBLIC.LOGIN_CONFIRMATION.URL}?email=${encodeURIComponent(email)}`;
+
+        router.push(confirmationUrl);
 
         return true;
       } catch (err) {
@@ -42,7 +46,7 @@ export function useAuthApi() {
   );
 
   const verifyCodeAndLogin = useCallback(
-    async (email, code) => {
+    async (email, code, redirectUrl = null) => {
       setLoading(true);
       setError(null);
 
@@ -57,6 +61,9 @@ export function useAuthApi() {
 
             if (user) {
               loginUser(user, response.access_token, response.refresh_token);
+
+              const finalRedirect = redirectUrl || ROUTES.PROTECTED.DASHBOARD.URL;
+              router.push(finalRedirect);
             } else {
               console.error('❌ Usuário não encontrado');
               throw new Error('Usuário não encontrado');
@@ -95,7 +102,7 @@ export function useAuthApi() {
     } finally {
       clearAuthCookies();
 
-      router.push(ROUTES.PUBLIC.LOGIN);
+      router.push(ROUTES.PUBLIC.LOGIN.URL);
 
       setLoading(false);
     }
@@ -103,7 +110,7 @@ export function useAuthApi() {
 
   const backToEmail = useCallback(() => {
     setError(null);
-    router.push(ROUTES.PUBLIC.LOGIN);
+    router.push(ROUTES.PUBLIC.LOGIN.URL);
   }, [router]);
 
   const clearError = useCallback(() => {

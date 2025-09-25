@@ -60,21 +60,30 @@ export async function middleware(request) {
     pathname.startsWith('/api') ||
     pathname.includes('.') ||
     pathname === '/favicon.ico' ||
-    pathname === ROUTES.PUBLIC.NOTE_FOUND
+    pathname === ROUTES.PUBLIC.NOTE_FOUND.URL
   ) {
     return NextResponse.next();
   }
 
   const protectedRoutes = [...Object.values(ROUTES.PROTECTED)];
-  const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
+  const publicRoutes = [...Object.values(ROUTES.PUBLIC)];
+
+  const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route.URL));
+  const isPublicRoute = publicRoutes.some((route) => pathname === route.URL);
+
+  const accessToken = request.cookies.get('access-token')?.value;
+    const refreshToken = request.cookies.get('refresh-token')?.value;
+    const isLoggedIn = !!accessToken;
+
+  if (isLoggedIn && isPublicRoute) {
+    const dashboardUrl = new URL(ROUTES.PROTECTED.DASHBOARD.URL, request.url);
+    return NextResponse.redirect(dashboardUrl);
+  }
 
   if (isProtectedRoute) {
-    const accessToken = request.cookies.get('access-token')?.value;
-    const refreshToken = request.cookies.get('refresh-token')?.value;
-
     if (!accessToken) {
       if (!refreshToken) {
-        const loginUrl = new URL(ROUTES.PUBLIC.LOGIN, request.url);
+        const loginUrl = new URL(ROUTES.PUBLIC.LOGIN.URL, request.url);
         loginUrl.searchParams.set('redirect', pathname);
         return NextResponse.redirect(loginUrl);
       }
@@ -110,7 +119,7 @@ export async function middleware(request) {
       // }
 
       // Por enquanto, sem refresh token, redireciona para login
-      const loginUrl = new URL(ROUTES.PUBLIC.LOGIN, request.url);
+      const loginUrl = new URL(ROUTES.PUBLIC.LOGIN.URL, request.url);
       loginUrl.searchParams.set('redirect', pathname);
       return NextResponse.redirect(loginUrl);
     }
@@ -140,7 +149,7 @@ export async function middleware(request) {
       //     return response;
       //   } catch (error) {
       //     // Falha na renovação, redireciona para login
-      //     const loginUrl = new URL(ROUTES.PUBLIC.LOGIN, request.url);
+      //     const loginUrl = new URL(ROUTES.PUBLIC.LOGIN.URL, request.url);
       //     loginUrl.searchParams.set('redirect', pathname);
 
       //     const response = NextResponse.redirect(loginUrl);
@@ -152,7 +161,7 @@ export async function middleware(request) {
       //   }
       // } else {
       //   // Token inválido sem possibilidade de renovação
-      //   const loginUrl = new URL(ROUTES.PUBLIC.LOGIN, request.url);
+      //   const loginUrl = new URL(ROUTES.PUBLIC.LOGIN.URL, request.url);
       //   loginUrl.searchParams.set('redirect', pathname);
 
       //   const response = NextResponse.redirect(loginUrl);
@@ -163,7 +172,7 @@ export async function middleware(request) {
       //   return response;
       // }
 
-      const loginUrl = new URL(ROUTES.PUBLIC.LOGIN, request.url);
+      const loginUrl = new URL(ROUTES.PUBLIC.LOGIN.URL, request.url);
       loginUrl.searchParams.set('redirect', pathname);
 
       const response = NextResponse.redirect(loginUrl);
@@ -179,5 +188,7 @@ export async function middleware(request) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+  ],
 };

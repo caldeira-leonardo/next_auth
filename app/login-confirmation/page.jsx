@@ -12,6 +12,7 @@ export default function LoginConfirmation() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [email, setEmail] = useState('');
+  const redirectUrl = searchParams.get('redirect');
 
   const defaultFormValues = useMemo(() => ({ code: '' }), []);
   const { values, errors, setValue, setFieldTouched, validateForm, getFieldError } =
@@ -24,7 +25,7 @@ export default function LoginConfirmation() {
     if (emailParam) {
       setEmail(decodeURIComponent(emailParam));
     } else {
-      router.push(ROUTES.PUBLIC.LOGIN);
+      router.push(ROUTES.PUBLIC.LOGIN.URL);
       console.log('🔐 Email não encontrado');
     }
   }, [searchParams, router]);
@@ -40,7 +41,7 @@ export default function LoginConfirmation() {
     });
 
     if (isValid) {
-      const success = await verifyCodeAndLogin(email, values.code);
+      const success = await verifyCodeAndLogin(email, values.code, redirectUrl);
       if (!success) {
         console.log('❌ Falha no login');
       }
