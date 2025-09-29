@@ -3,12 +3,10 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
-import { usePermissions } from '@/hooks/use-permissions';
 import { ROUTES } from '@/lib/routes';
 
 export function ProtectedRoute({ children, requiredPermission, fallback }) {
   const { user, isLoading } = useAuth();
-  const { checkPermission } = usePermissions();
   const router = useRouter();
 
   useEffect(() => {
@@ -16,14 +14,6 @@ export function ProtectedRoute({ children, requiredPermission, fallback }) {
       router.push(ROUTES.PUBLIC.LOGIN.URL);
     }
   }, [user, isLoading, router]);
-
-  useEffect(() => {
-    if (user && requiredPermission && !checkPermission(requiredPermission)) {
-      if (!fallback) {
-        router.push(ROUTES.PUBLIC.NOTE_FOUND.URL);
-      }
-    }
-  }, [user, requiredPermission, checkPermission, fallback, router]);
 
   if (isLoading) {
     return (
@@ -38,10 +28,6 @@ export function ProtectedRoute({ children, requiredPermission, fallback }) {
 
   if (!user) {
     return null;
-  }
-
-  if (requiredPermission && !checkPermission(requiredPermission)) {
-    return fallback ? <>{fallback}</> : null;
   }
 
   return <>{children}</>;

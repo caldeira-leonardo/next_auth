@@ -12,22 +12,16 @@ export function AuthRedirect() {
   const router = useRouter();
 
   useEffect(() => {
-    if (isLoading || pathname === ROUTES.PUBLIC.LOGIN_CONFIRMATION.URL) {
+    if (isLoading) {
       return;
     }
 
     if (user) {
-      setTimeout(() => {
-        router.replace(ROUTES.PROTECTED.DASHBOARD.URL);
-      }, 200);
+      router.replace(ROUTES.PROTECTED.DASHBOARD.URL);
     } else {
       router.replace(ROUTES.PUBLIC.LOGIN.URL);
     }
-  }, [user, isLoading, router, pathname]);
-
-  if (isLoading) {
-    return <FullScreenSpinner message='Carregando aplicação...' />;
-  }
+  }, [user, isLoading, router]);
 
   return <FullScreenSpinner message='Redirecionando...' />;
 }
