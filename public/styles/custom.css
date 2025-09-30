@@ -1,0 +1,56 @@
+.smooth-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+@media (max-width: 768px) {
+  .app-header-spacing {
+    padding-top: 70px !important;
+  }
+
+  .app-custom-card {
+    padding: 15px !important;
+    margin: 10px !important;
+  }
+}
+
+
+.content-adapt {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+  align-items: start !important;
+}
+
+.full-content-adapt {
+  grid-column: 1 / -1;
+  grid-column-start: 1;
+}
+
+.major-content-adapt {
+  display: grid !important;
+  grid-template-columns: 2fr 1fr !important;
+  grid-column-start: 1 !important;
+}
+
+.limit-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  cursor: default;
+}
+
+.h-min {
+  height: min-content !important;
+}
+
+.small-adapt {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important;
+}
+
+.ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
