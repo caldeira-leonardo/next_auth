@@ -25,7 +25,10 @@ export default function AppHeader() {
         <nav className='navbar navbar-expand-lg p-0'>
           <div className='d-flex align-items-center'>
             <a href='/dashboard' className='text-nowrap logo-img'>
-              <img src='/modernize/assets/images/logos/dark-logo.svg' className='dark-logo' alt='Logo-Dark' />
+              <div className='d-flex align-items-center'>
+                <i className='ti ti-building-bank fs-2 text-primary me-2'></i>
+                <span className='fs-4 fw-bold text-dark'>MoneyHub</span>
+              </div>
             </a>
           </div>
 
@@ -51,7 +54,7 @@ export default function AppHeader() {
               <li className='nav-item nav-icon-hover-bg rounded-circle dropdown'>
                 <a
                   className='nav-link position-relative'
-                  href='javascript:void(0)'
+                  href='#'
                   id='notificationDropdown'
                   aria-expanded='false'
                 >
@@ -67,69 +70,57 @@ export default function AppHeader() {
                     <span className='badge text-bg-primary rounded-4 px-3 py-1 lh-sm'>3 novas</span>
                   </div>
                   <div className='message-body' data-simplebar>
-                    <a href='javascript:void(0)' className='py-6 px-7 d-flex align-items-center dropdown-item'>
+                    <a href='#' className='py-6 px-7 d-flex align-items-center dropdown-item'>
                       <span className='me-3'>
-                        <img
-                          src='/modernize/assets/images/profile/user-2.jpg'
-                          alt='user'
-                          className='rounded-circle'
-                          width='48'
-                          height='48'
-                        />
+                        <div className='rounded-circle bg-primary d-flex align-items-center justify-content-center' style={{ width: '48px', height: '48px' }}>
+                          <i className='ti ti-user text-white fs-5'></i>
+                        </div>
                       </span>
                       <div className='w-100'>
-                        <h6 className='mb-1 fw-semibold lh-base'>Novo boleto criado!</h6>
-                        <span className='fs-2 d-block text-body-secondary'>Boleto unitário foi gerado com sucesso</span>
+                        <h6 className='mb-1 fs-3 fw-semibold'>Boleto vencido</h6>
+                        <span className='fs-2 d-block text-body-secondary'>Boleto #12345 vence hoje</span>
                       </div>
                     </a>
-                    <a href='javascript:void(0)' className='py-6 px-7 d-flex align-items-center dropdown-item'>
+                    <a href='#' className='py-6 px-7 d-flex align-items-center dropdown-item'>
                       <span className='me-3'>
-                        <img
-                          src='/modernize/assets/images/profile/user-3.jpg'
-                          alt='user'
-                          className='rounded-circle'
-                          width='48'
-                          height='48'
-                        />
+                        <div className='rounded-circle bg-success d-flex align-items-center justify-content-center' style={{ width: '48px', height: '48px' }}>
+                          <i className='ti ti-credit-card text-white fs-5'></i>
+                        </div>
                       </span>
                       <div className='w-100'>
-                        <h6 className='mb-1 fw-semibold lh-base'>Pagamento recebido</h6>
-                        <span className='fs-2 d-block text-body-secondary'>Cliente João Silva efetuou pagamento</span>
+                        <h6 className='mb-1 fs-3 fw-semibold'>Pagamento aprovado</h6>
+                        <span className='fs-2 d-block text-body-secondary'>PIX de R$ 150,00 aprovado</span>
                       </div>
                     </a>
-                    <a href='javascript:void(0)' className='py-6 px-7 d-flex align-items-center dropdown-item'>
+                    <a href='#' className='py-6 px-7 d-flex align-items-center dropdown-item'>
                       <span className='me-3'>
-                        <img
-                          src='/modernize/assets/images/profile/user-4.jpg'
-                          alt='user'
-                          className='rounded-circle'
-                          width='48'
-                          height='48'
-                        />
+                        <div className='rounded-circle bg-info d-flex align-items-center justify-content-center' style={{ width: '48px', height: '48px' }}>
+                          <i className='ti ti-files text-white fs-5'></i>
+                        </div>
                       </span>
                       <div className='w-100'>
-                        <h6 className='mb-1 fw-semibold lh-base'>Lote processado</h6>
-                        <span className='fs-2 d-block text-body-secondary'>50 boletos foram criados com sucesso</span>
+                        <h6 className='mb-1 fs-3 fw-semibold'>Lote processado</h6>
+                        <span className='fs-2 d-block text-body-secondary'>Lote #789 processado com sucesso</span>
                       </div>
                     </a>
                   </div>
                   <div className='py-6 px-7 mb-1'>
-                    <button className='btn btn-outline-primary w-100'>Ver Todas as Notificações</button>
+                    <a className='btn btn-outline-primary w-100' href='#'>Ver todas as notificações</a>
                   </div>
                 </div>
               </li>
-
-              <li className='nav-item dropdown'>
-                <a className='nav-link pe-0' href='javascript:void(0)' id='profileDropdown' aria-expanded='false'>
+              <li className='nav-item nav-icon-hover-bg rounded-circle dropdown'>
+                <a
+                  className='nav-link position-relative'
+                  href='#'
+                  id='profileDropdown'
+                  aria-expanded='false'
+                >
                   <div className='d-flex align-items-center'>
                     <div className='user-profile-img'>
-                      <img
-                        src='/modernize/assets/images/profile/user-1.jpg'
-                        className='rounded-circle'
-                        width='35'
-                        height='35'
-                        alt='user-profile'
-                      />
+                      <div className='rounded-circle bg-primary d-flex align-items-center justify-content-center' style={{ width: '35px', height: '35px' }}>
+                        <i className='ti ti-user text-white fs-6'></i>
+                      </div>
                     </div>
                   </div>
                 </a>
@@ -139,50 +130,33 @@ export default function AppHeader() {
                 >
                   <div className='profile-dropdown position-relative' data-simplebar>
                     <div className='py-3 px-7 pb-0'>
-                      <h5 className='mb-0 fs-5 fw-semibold'>Perfil do Usuário</h5>
+                      <h5 className='mb-0 fs-5 fw-semibold'>Perfil</h5>
                     </div>
                     <div className='d-flex align-items-center py-9 mx-7 border-bottom'>
-                      <img
-                        src='/modernize/assets/images/profile/user-1.jpg'
-                        className='rounded-circle'
-                        width='80'
-                        height='80'
-                        alt='user-profile'
-                      />
+                      <div className='rounded-circle bg-primary d-flex align-items-center justify-content-center' style={{ width: '80px', height: '80px' }}>
+                        <i className='ti ti-user text-white fs-2'></i>
+                      </div>
                       <div className='ms-3'>
-                        <h5 className='mb-1 fs-3'>{user?.name || 'Usuário'}</h5>
-                        <span className='mb-1 d-block'>{user?.role || 'Administrador'}</span>
-                        <p className='mb-0 d-flex align-items-center gap-2'>
-                          <i className='ti ti-mail fs-4'></i> {user?.email || 'usuario@exemplo.com'}
-                        </p>
+                        <h5 className='mb-1 fs-4 fw-semibold'>{user?.name || 'Usuário'}</h5>
+                        <p className='mb-0 fs-2 text-body-secondary'>{user?.email || 'usuario@exemplo.com'}</p>
                       </div>
                     </div>
                     <div className='message-body'>
-                      <a href='/profile' className='py-8 px-7 mt-8 d-flex align-items-center'>
+                      <a href='#' className='py-6 px-7 d-flex align-items-center dropdown-item'>
                         <span className='d-flex align-items-center justify-content-center text-bg-light rounded-1 p-6'>
-                          <img
-                            src='/modernize/assets/images/svgs/icon-account.svg'
-                            alt='profile'
-                            width='24'
-                            height='24'
-                          />
+                          <i className='ti ti-user-circle fs-4 text-primary'></i>
                         </span>
                         <div className='w-100 ps-3'>
-                          <h6 className='mb-1 fs-3 fw-semibold lh-base'>Meu Perfil</h6>
-                          <span className='fs-2 d-block text-body-secondary'>Configurações da Conta</span>
+                          <h6 className='mb-1 fs-3 fw-semibold'>Meu Perfil</h6>
+                          <span className='fs-2 d-block text-body-secondary'>Configurações da conta</span>
                         </div>
                       </a>
-                      <a href='/settings' className='py-8 px-7 d-flex align-items-center'>
+                      <a href='#' className='py-6 px-7 d-flex align-items-center dropdown-item'>
                         <span className='d-flex align-items-center justify-content-center text-bg-light rounded-1 p-6'>
-                          <img
-                            src='/modernize/assets/images/svgs/icon-tasks.svg'
-                            alt='settings'
-                            width='24'
-                            height='24'
-                          />
+                          <i className='ti ti-settings fs-4 text-primary'></i>
                         </span>
                         <div className='w-100 ps-3'>
-                          <h6 className='mb-1 fs-3 fw-semibold lh-base'>Configurações</h6>
+                          <h6 className='mb-1 fs-3 fw-semibold'>Configurações</h6>
                           <span className='fs-2 d-block text-body-secondary'>Preferências e Configurações</span>
                         </div>
                       </a>

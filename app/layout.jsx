@@ -15,6 +15,7 @@ export default function RootLayout({ children }) {
     <html lang='pt-BR' data-layout='vertical'>
       <head>
         <link rel='stylesheet' href='/modernize/assets/css/styles.css' />
+        <link rel='stylesheet' href='/styles/custom.css' />
       </head>
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
         <Suspense fallback={<FullScreenSpinner message='Inicializando aplicação...' />}>

@@ -6,7 +6,7 @@ export default function ProtectedLayout({ children }) {
   return (
     <div className='page-wrapper'>
       <AppHeader />
-      <main className='page-body'>{children}</main>
+      <main className='page-body pt-5'>{children}</main>
     </div>
   );
 }
