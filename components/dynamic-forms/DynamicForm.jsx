@@ -1,0 +1,75 @@
+import { forwardRef } from 'react';
+import { useDynamicForm } from '@/hooks/use-dynamic-form';
+import DynamicField from '@/components/dynamic-forms/DynamicField';
+
+const DynamicForm = forwardRef(({
+  receipt = [],
+  onSubmit,
+  onReset,
+  className = '',
+  formProps = {},
+  children
+}, ref) => {
+  const formHook = useDynamicForm(receipt);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const result = await formHook.submitForm(receipt, onSubmit);
+
+    if (result.success) {
+      console.log('Formulário enviado com sucesso:', result.data);
+    } else {
+      console.log('Erro no formulário:', result.errors || result.error);
+    }
+
+    return result;
+  };
+
+  const handleReset = (e) => {
+    e.preventDefault();
+    formHook.resetForm();
+
+    if (onReset) {
+      onReset();
+    }
+  };
+
+  const formClasses = [
+    'dynamic-form',
+    className
+  ].filter(Boolean).join(' ');
+
+  return (
+    <form
+      ref={ref || formHook.formRef}
+      onSubmit={handleSubmit}
+      onReset={handleReset}
+      className={formClasses}
+      noValidate
+      {...formProps}
+    >
+      {receipt.map((field, index) => (
+        <DynamicField
+          key={field.field_name || `field-${index}`}
+          field={field}
+          formHook={formHook}
+        />
+      ))}
+
+      {children}
+
+      {formHook.isSubmitting && (
+        <div className="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-white bg-opacity-75">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Enviando...</span>
+          </div>
+        </div>
+      )}
+    </form>
+  );
+});
+
+DynamicForm.displayName = 'DynamicForm';
+
+export default DynamicForm;
