@@ -8,7 +8,7 @@ export default function BoletosPage() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace(ROUTES.PROTECTED.BOLETO_UNITARIO.URL);
+    router.replace(ROUTES.PROTECTED.BOLETO_SINGLE.URL);
   }, [router]);
 
   return null;

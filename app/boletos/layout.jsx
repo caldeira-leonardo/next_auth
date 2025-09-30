@@ -11,19 +11,19 @@ const tabs = [
   {
     id: 'unitario',
     label: 'Unitário',
-    href: ROUTES.PROTECTED.BOLETO_UNITARIO.URL,
+    href: ROUTES.PROTECTED.BOLETO_SINGLE.URL,
     icon: 'ti ti-file-invoice',
   },
   {
     id: 'recorrente',
     label: 'Recorrente',
-    href: ROUTES.PROTECTED.BOLETO_RECORRENTE.URL,
+    href: ROUTES.PROTECTED.BOLETO_RECURRING.URL,
     icon: 'ti ti-repeat',
   },
   {
     id: 'lote',
     label: 'Lote',
-    href: ROUTES.PROTECTED.BOLETO_LOTE.URL,
+    href: ROUTES.PROTECTED.BOLETO_BATCH.URL,
     icon: 'ti ti-files',
   },
   {
@@ -35,7 +35,7 @@ const tabs = [
   {
     id: 'pagador-favorito',
     label: 'Pagador Favorito',
-    href: ROUTES.PROTECTED.BOLETO_PAGADOR_FAVORITO.URL,
+    href: ROUTES.PROTECTED.BOLETO_FAVORITE_PAYER.URL,
     icon: 'ti ti-user-star',
   },
 ];
