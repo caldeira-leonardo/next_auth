@@ -5,22 +5,30 @@ import { createContext, useContext, useState, useEffect } from 'react';
 const AppContext = createContext(undefined);
 
 export function AppProvider({ children }) {
-  const [logo, setLogo] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [logo, setLogo] = useState('/placeholder-logo.svg');
+  const [isLogoLoading, setIsLogoLoading] = useState(true);
 
   useEffect(() => {
-    // Carrega a logo uma única vez quando a aplicação inicia
-    setLogo('/logo_full.svg');
-    setIsLoading(false);
+    const img = new Image();
+
+    img.onload = () => {
+      setLogo('/logo_full.svg');
+      setIsLogoLoading(false);
+    };
+
+    img.onerror = () => {
+      setLogo('/placeholder-logo.svg');
+      setIsLogoLoading(false);
+    };
+
+    img.src = '/logo_full.svg';
   }, []);
 
-  // Configurações da aplicação
   const appConfig = {
-    logo,
-    isLoading,
-    // Outras configurações globais podem ser adicionadas aqui
-    appName: 'Sistema de Permissões',
+    appName: 'MoneyHub',
     version: '1.0.0',
+    logo,
+    isLogoLoading,
   };
 
   return <AppContext.Provider value={appConfig}>{children}</AppContext.Provider>;
@@ -34,8 +42,7 @@ export function useApp() {
   return context;
 }
 
-// Hook específico para a logo
 export function useLogo() {
-  const { logo, isLoading } = useApp();
-  return { logo, isLoading };
+  const { logo, isLogoLoading } = useApp();
+  return { logo, isLoading: isLogoLoading };
 }
