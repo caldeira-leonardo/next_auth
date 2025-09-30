@@ -1,7 +1,14 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { getUserLS, setUserLS, removeUserLS, setAuthTokens, removeAuthTokens } from '@/lib/auth-cookies';
+import {
+  getUserLS,
+  setUserLS,
+  removeUserLS,
+  setAuthTokens,
+  removeAuthTokens,
+  getAccessTokenCookie,
+} from '@/lib/auth-cookies';
 
 const AuthContext = createContext(undefined);
 
@@ -11,6 +18,30 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     initializeAuth();
+  }, []);
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    const handleStorageChange = (e) => {
+      if (e.key === 'user-data' && !e.newValue) {
+        setUser(null);
+      }
+    };
+
+    const checkTokensInterval = setInterval(() => {
+      if (user && !getAccessTokenCookie()) {
+        setUser(null);
+        removeUserLS();
+      }
+    }, 3000);
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(checkTokensInterval);
+    };
   }, []);
 
   const initializeAuth = async () => {
@@ -30,7 +61,6 @@ export function AuthProvider({ children }) {
       setIsLoading(false);
     }
   };
-
 
   const loginUser = (user, accessToken = '', refreshToken = '') => {
     setUser(user);

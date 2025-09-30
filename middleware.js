@@ -85,7 +85,14 @@ export async function middleware(request) {
       if (!refreshToken) {
         const loginUrl = new URL(ROUTES.PUBLIC.LOGIN.URL, request.url);
         loginUrl.searchParams.set('redirect', pathname);
-        return NextResponse.redirect(loginUrl);
+
+        const response = NextResponse.redirect(loginUrl);
+
+        response.cookies.delete('access-token');
+        response.cookies.delete('refresh-token');
+        response.cookies.delete('user-data');
+
+        return response;
       }
 
       // Tenta renovar usando refresh token
@@ -176,8 +183,14 @@ export async function middleware(request) {
       loginUrl.searchParams.set('redirect', pathname);
 
       const response = NextResponse.redirect(loginUrl);
+
       response.cookies.delete('access-token');
-      // response.cookies.delete('refresh-token'); // COMENTADO - refresh token não implementado
+      response.cookies.delete('refresh-token');
+      response.cookies.delete('user-data');
+
+      response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      response.headers.set('Pragma', 'no-cache');
+      response.headers.set('Expires', '0');
 
       return response;
     }
