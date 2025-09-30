@@ -2,28 +2,28 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import PagadorModal from '@/components/modals/pagador-modal';
+import FavoritePayerModal from '@/components/boletos/favorite-payer-modal';
 
-export default function PagadorFavoritoPage() {
+export default function FavoritePayerPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [pagadores, setPagadores] = useState([]);
-  const [editingPagador, setEditingPagador] = useState(null);
+  const [payers, setPayers] = useState([]);
+  const [editingPayer, setEditingPayer] = useState(null);
 
   useEffect(() => {
     setTimeout(() => {
-      setPagadores([]);
+      setPayers([]);
       setLoading(false);
     }, 2000);
   }, []);
 
   const handleCreate = () => {
-    setEditingPagador(null);
+    setEditingPayer(null);
     setIsModalOpen(true);
   };
 
-  const handleEdit = (pagador) => {
-    setEditingPagador(pagador);
+  const handleEdit = (payer) => {
+    setEditingPayer(payer);
     setIsModalOpen(true);
   };
 
@@ -33,26 +33,26 @@ export default function PagadorFavoritoPage() {
     }
   };
 
-  const handleSavePagador = async (pagadorData) => {
+  const handleSavePayer = async (payerData) => {
     try {
-      if (editingPagador) {
-        console.log('Atualizando pagador:', { ...pagadorData, id: editingPagador.id });
+      if (editingPayer) {
+        console.log('Updating payer:', { ...payerData, id: editingPayer.id });
       } else {
-        console.log('Criando novo pagador:', pagadorData);
+        console.log('Creating new payer:', payerData);
 
-        const newPagador = {
+        const newPayer = {
           id: Date.now(),
-          ...pagadorData,
+          ...payerData,
         };
-        setPagadores((prev) => [...prev, newPagador]);
+        setPayers((prev) => [...prev, newPayer]);
       }
 
       setIsModalOpen(false);
-      setEditingPagador(null);
+      setEditingPayer(null);
 
-      alert(editingPagador ? 'Pagador atualizado com sucesso!' : 'Pagador criado com sucesso!');
+      alert(editingPayer ? 'Pagador atualizado com sucesso!' : 'Pagador criado com sucesso!');
     } catch (error) {
-      console.error('Erro ao salvar pagador:', error);
+      console.error('Error saving payer:', error);
       alert('Erro ao salvar pagador. Tente novamente.');
       throw error;
     }
@@ -93,14 +93,14 @@ export default function PagadorFavoritoPage() {
         </div>
       </div>
 
-      <PagadorModal
+      <FavoritePayerModal
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
-          setEditingPagador(null);
+          setEditingPayer(null);
         }}
-        pagador={editingPagador}
-        onSave={handleSavePagador}
+        payer={editingPayer}
+        onSave={handleSavePayer}
       />
     </div>
   );

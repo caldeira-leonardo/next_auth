@@ -2,16 +2,21 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import RecurringBoletoModal from '@/components/boletos/recurring-boleto-modal';
 
-export default function RecorrentePage() {
+export default function RecurringBoletoPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [boletosData, setBoletosData] = useState([]);
+  const [recurringBoletos, setRecurringBoletos] = useState([]);
 
   useEffect(() => {
-    // Carregar dados de boletos recorrentes
     setTimeout(() => setLoading(false), 2000);
   }, []);
+
+  const handleBoletoCreated = (newBoleto) => {
+    console.log('New recurring boleto created:', newBoleto);
+    setIsModalOpen(false);
+  };
 
   return (
     <div className="row">
@@ -46,6 +51,12 @@ export default function RecorrentePage() {
             )}
           </div>
         </div>
+
+        <RecurringBoletoModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSuccess={handleBoletoCreated}
+        />
       </div>
     </div>
   );

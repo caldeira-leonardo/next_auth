@@ -5,17 +5,23 @@ import { Button } from '@/components/ui/button';
 import { DynamicForm } from '@/components/dynamic-forms';
 import { receipts } from '@/lib/dynamic-forms/receipts';
 
-export default function FavoritePayerModal({ isOpen, onClose, pagador = null, onSave }) {
+export default function RecurringBoletoModal({ isOpen, onClose, onSuccess }) {
   const [loading, setLoading] = useState(false);
 
   const handleFormSubmit = async (formData) => {
     setLoading(true);
     try {
-      await onSave(formData);
+      // API call to create recurring boleto
+      console.log('Creating recurring boleto:', formData);
+
+      // Simulation
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      onSuccess(formData);
       onClose();
       return { success: true };
     } catch (error) {
-      console.error('Erro ao salvar pagador:', error);
+      console.error('Error creating recurring boleto:', error);
       throw error;
     } finally {
       setLoading(false);
@@ -26,20 +32,21 @@ export default function FavoritePayerModal({ isOpen, onClose, pagador = null, on
 
   return (
     <div className='modal fade show d-block' style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-      <div className='modal-dialog modal-lg'>
+      <div className='modal-dialog modal-xl'>
         <div className='modal-content'>
           <div className='modal-header'>
             <h5 className='modal-title'>
-              <i className='ti ti-user-plus me-2'></i>
-              {pagador ? 'Editar Pagador' : 'Criar Novo Pagador'}
+              <i className='ti ti-repeat me-2'></i>
+              Criar Boleto Recorrente
             </h5>
             <button type='button' className='btn-close' onClick={onClose} disabled={loading}></button>
           </div>
+
           <div className='modal-body'>
             <DynamicForm
-              receipt={receipts.favorite_payer}
+              receipt={receipts.recurring_boleto}
               onSubmit={handleFormSubmit}
-              className='dynamic-form-modal'
+              className='dynamic-form-recurring-boleto'
             >
               <div className='modal-footer border-0 pt-0'>
                 <Button
@@ -58,12 +65,12 @@ export default function FavoritePayerModal({ isOpen, onClose, pagador = null, on
                   {loading ? (
                     <>
                       <span className='spinner-border spinner-border-sm me-2' role='status'></span>
-                      Salvando...
+                      Criando...
                     </>
                   ) : (
                     <>
                       <i className='ti ti-check me-1'></i>
-                      {pagador ? 'Atualizar' : 'Criar'} Pagador
+                      Criar Recorrência
                     </>
                   )}
                 </Button>
