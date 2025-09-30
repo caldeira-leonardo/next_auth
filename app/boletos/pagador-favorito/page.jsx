@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import PagadorModal from '@/components/modals/pagador-modal';
 
 export default function PagadorFavoritoPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -10,7 +11,6 @@ export default function PagadorFavoritoPage() {
   const [editingPagador, setEditingPagador] = useState(null);
 
   useEffect(() => {
-    // Carregar pagadores favoritos
     setTimeout(() => {
       setPagadores([]);
       setLoading(false);
@@ -29,8 +29,32 @@ export default function PagadorFavoritoPage() {
 
   const handleDelete = (id) => {
     if (confirm('Tem certeza que deseja excluir este pagador?')) {
-      // API call para deletar
       console.log('Deletar pagador:', id);
+    }
+  };
+
+  const handleSavePagador = async (pagadorData) => {
+    try {
+      if (editingPagador) {
+        console.log('Atualizando pagador:', { ...pagadorData, id: editingPagador.id });
+      } else {
+        console.log('Criando novo pagador:', pagadorData);
+
+        const newPagador = {
+          id: Date.now(),
+          ...pagadorData,
+        };
+        setPagadores((prev) => [...prev, newPagador]);
+      }
+
+      setIsModalOpen(false);
+      setEditingPagador(null);
+
+      alert(editingPagador ? 'Pagador atualizado com sucesso!' : 'Pagador criado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao salvar pagador:', error);
+      alert('Erro ao salvar pagador. Tente novamente.');
+      throw error;
     }
   };
 
@@ -68,6 +92,16 @@ export default function PagadorFavoritoPage() {
           </div>
         </div>
       </div>
+
+      <PagadorModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingPagador(null);
+        }}
+        pagador={editingPagador}
+        onSave={handleSavePagador}
+      />
     </div>
   );
 }
