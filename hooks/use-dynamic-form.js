@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { generateId, labelToId, formDataToObject } from '@/lib/dynamic-forms/utils';
-import { runValidations } from '@/lib/dynamic-forms/validators';
+import { runValidations, extractValidatorsFromProps } from '@/lib/dynamic-forms/validators';
 
 export const useDynamicForm = (initialReceipt = []) => {
   const [formData, setFormData] = useState({});
@@ -9,157 +9,206 @@ export const useDynamicForm = (initialReceipt = []) => {
   const [selectedFiles, setSelectedFiles] = useState({});
   const formRef = useRef(null);
 
-  const updateField = useCallback((fieldName, value, field = null) => {
-    setFormData(prev => ({
-      ...prev,
-      [fieldName]: value
-    }));
+  const updateField = useCallback(
+    (fieldName, value, field = null) => {
+      setFormData((prev) => ({
+        ...prev,
+        [fieldName]: value,
+      }));
 
-    if (errors[fieldName]) {
-      setErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors[fieldName];
-        return newErrors;
-      });
-    }
+      if (errors[fieldName]) {
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors[fieldName];
+          return newErrors;
+        });
+      }
 
-    if (field?.options?.onChange) {
-      field.options.onChange(value, formData, updateField);
-    }
-  }, [errors, formData]);
+      if (field?.options?.onChange) {
+        field.options.onChange(value, formData, updateField);
+      }
+    },
+    [errors, formData]
+  );
 
   const validateField = useCallback((field, value) => {
-    if (!field.options?.validators) return { isValid: true, errors: [] };
+    const autoValidators = extractValidatorsFromProps(field.options?.props || [], field.options?.type);
 
-    return runValidations(value, field.options.validators);
-  }, []);
+    const allValidators = [...autoValidators, ...(field.options?.validators || [])];
 
-  const validateForm = useCallback((receipt) => {
-    const newErrors = {};
-    let isFormValid = true;
-
-    const validateRecursive = (fields) => {
-      fields.forEach(field => {
-        if (field.input_type === 'container' && field.items) {
-          validateRecursive(field.items);
-        } else if (field.field_name) {
-          const value = formData[field.field_name];
-          const validation = validateField(field, value);
-
-          if (!validation.isValid) {
-            newErrors[field.field_name] = validation.errors;
-            isFormValid = false;
-          }
-        }
-      });
-    };
-
-    validateRecursive(receipt);
-    setErrors(newErrors);
-    return isFormValid;
-  }, [formData, validateField]);
-
-  const handleFileChange = useCallback((fieldName, files) => {
-    const fileArray = Array.from(files);
-    const filesWithId = fileArray.map(file => ({
-      file,
-      id: generateId(),
-      preview: file.type.startsWith('image/') ? URL.createObjectURL(file) : null
-    }));
-
-    setSelectedFiles(prev => ({
-      ...prev,
-      [fieldName]: filesWithId
-    }));
-
-    updateField(fieldName, files);
-  }, [updateField]);
-
-  const removeFile = useCallback((fieldName, fileId) => {
-    setSelectedFiles(prev => {
-      const currentFiles = prev[fieldName] || [];
-      const updatedFiles = currentFiles.filter(f => f.id !== fileId);
-
-      const removedFile = currentFiles.find(f => f.id === fileId);
-      if (removedFile?.preview) {
-        URL.revokeObjectURL(removedFile.preview);
-      }
-
-      return {
-        ...prev,
-        [fieldName]: updatedFiles
-      };
+    console.log(`Validando campo ${field.field_name}:`, {
+      value,
+      props: field.options?.props,
+      autoValidators,
+      manualValidators: field.options?.validators,
+      allValidators,
     });
 
-    const currentFiles = selectedFiles[fieldName] || [];
-    const updatedFiles = currentFiles.filter(f => f.id !== fileId);
-    const fileList = new DataTransfer();
-    updatedFiles.forEach(({ file }) => fileList.items.add(file));
+    if (allValidators.length === 0) return { isValid: true, errors: [] };
 
-    updateField(fieldName, fileList.files);
-  }, [selectedFiles, updateField]);
+    const result = runValidations(value, allValidators);
+    console.log(`Resultado da validação para ${field.field_name}:`, result);
 
-  const submitForm = useCallback(async (receipt, onSubmit) => {
-    if (isSubmitting) return;
+    return result;
+  }, []);
 
-    setIsSubmitting(true);
+  const validateForm = useCallback(
+    (receipt) => {
+      const newErrors = {};
+      let isFormValid = true;
 
-    try {
-      const isValid = validateForm(receipt);
+      console.log('Iniciando validação do formulário:', { receipt, formData });
 
-      if (!isValid) {
-        console.log('Formulário inválido:', errors);
-        return { success: false, errors };
-      }
+      const validateRecursive = (fields) => {
+        fields.forEach((field) => {
+          if (field.input_type === 'container' && field.items) {
+            validateRecursive(field.items);
+          } else if (field.field_name) {
+            const value = formData[field.field_name] || '';
+            const validation = validateField(field, value);
 
-      const submitData = { ...formData };
+            if (!validation.isValid) {
+              newErrors[field.field_name] = validation.errors;
+              isFormValid = false;
+            }
+          }
+        });
+      };
 
-      Object.keys(selectedFiles).forEach(fieldName => {
-        if (selectedFiles[fieldName]?.length > 0) {
-          submitData[fieldName] = selectedFiles[fieldName].map(f => f.file);
+      validateRecursive(receipt);
+      setErrors(newErrors);
+
+      console.log('Resultado da validação:', { isFormValid, newErrors });
+
+      return isFormValid;
+    },
+    [formData, validateField]
+  );
+
+  const handleFileChange = useCallback(
+    (fieldName, files) => {
+      const fileArray = Array.from(files);
+      const filesWithId = fileArray.map((file) => ({
+        file,
+        id: generateId(),
+        preview: file.type.startsWith('image/') ? URL.createObjectURL(file) : null,
+      }));
+
+      setSelectedFiles((prev) => ({
+        ...prev,
+        [fieldName]: filesWithId,
+      }));
+
+      updateField(fieldName, files);
+    },
+    [updateField]
+  );
+
+  const removeFile = useCallback(
+    (fieldName, fileId) => {
+      setSelectedFiles((prev) => {
+        const currentFiles = prev[fieldName] || [];
+        const updatedFiles = currentFiles.filter((f) => f.id !== fileId);
+
+        const removedFile = currentFiles.find((f) => f.id === fileId);
+        if (removedFile?.preview) {
+          URL.revokeObjectURL(removedFile.preview);
         }
+
+        return {
+          ...prev,
+          [fieldName]: updatedFiles,
+        };
       });
 
-      if (onSubmit) {
-        const result = await onSubmit(submitData);
-        return { success: true, data: result };
-      }
+      const currentFiles = selectedFiles[fieldName] || [];
+      const updatedFiles = currentFiles.filter((f) => f.id !== fileId);
+      const fileList = new DataTransfer();
+      updatedFiles.forEach(({ file }) => fileList.items.add(file));
 
-      return { success: true, data: submitData };
-    } catch (error) {
-      console.error('Erro ao submeter formulário:', error);
-      return { success: false, error: error.message };
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [formData, selectedFiles, errors, isSubmitting, validateForm]);
+      updateField(fieldName, fileList.files);
+    },
+    [selectedFiles, updateField]
+  );
+
+  const submitForm = useCallback(
+    async (receipt, onSubmit) => {
+      if (isSubmitting) return { success: false, error: 'Formulário já está sendo enviado' };
+
+      setIsSubmitting(true);
+
+      try {
+        const isValid = validateForm(receipt);
+
+        if (!isValid) {
+          console.log('Formulário inválido. Não será enviado.');
+          return { success: false, errors, message: 'Formulário contém erros. Verifique os campos destacados.' };
+        }
+
+        const submitData = { ...formData };
+
+        Object.keys(selectedFiles).forEach((fieldName) => {
+          if (selectedFiles[fieldName]?.length > 0) {
+            submitData[fieldName] = selectedFiles[fieldName].map((f) => f.file);
+          }
+        });
+
+        if (onSubmit) {
+          const result = await onSubmit(submitData);
+          return { success: true, data: result };
+        }
+
+        return { success: true, data: submitData };
+      } catch (error) {
+        console.error('Erro ao submeter formulário:', error);
+        return { success: false, error: error.message };
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [formData, selectedFiles, isSubmitting, validateForm]
+  );
 
   const resetForm = useCallback(() => {
     setFormData({});
     setErrors({});
     setIsSubmitting(false);
 
-    Object.values(selectedFiles).flat().forEach(({ preview }) => {
-      if (preview) URL.revokeObjectURL(preview);
-    });
+    Object.values(selectedFiles)
+      .flat()
+      .forEach(({ preview }) => {
+        if (preview) URL.revokeObjectURL(preview);
+      });
     setSelectedFiles({});
   }, [selectedFiles]);
 
-  const getFieldValue = useCallback((fieldName) => {
-    return formData[fieldName] || '';
-  }, [formData]);
+  const getFieldValue = useCallback(
+    (fieldName) => {
+      return formData[fieldName] || '';
+    },
+    [formData]
+  );
 
-  const getFieldError = useCallback((fieldName) => {
-    return errors[fieldName] || [];
-  }, [errors]);
+  const getFieldError = useCallback(
+    (fieldName) => {
+      return errors[fieldName] || [];
+    },
+    [errors]
+  );
 
-  const hasFieldError = useCallback((fieldName) => {
-    return !!(errors[fieldName] && errors[fieldName].length > 0);
-  }, [errors]);
+  const hasFieldError = useCallback(
+    (fieldName) => {
+      return !!(errors[fieldName] && errors[fieldName].length > 0);
+    },
+    [errors]
+  );
 
-  const getFieldFiles = useCallback((fieldName) => {
-    return selectedFiles[fieldName] || [];
-  }, [selectedFiles]);
+  const getFieldFiles = useCallback(
+    (fieldName) => {
+      return selectedFiles[fieldName] || [];
+    },
+    [selectedFiles]
+  );
 
   return {
     // Estado
@@ -182,6 +231,6 @@ export const useDynamicForm = (initialReceipt = []) => {
     getFieldValue,
     getFieldError,
     hasFieldError,
-    getFieldFiles
+    getFieldFiles,
   };
 };
