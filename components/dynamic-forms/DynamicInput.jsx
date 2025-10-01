@@ -41,8 +41,12 @@ const DynamicInput = ({ field, value = '', onChange, onValidate, error = [], cla
   const handleChange = (e) => {
     let newValue = e.target.value;
 
+    if (masks.includes('cpf') || masks.includes('cnpj')) {
+      newValue = newValue.replace(/[^\d]/g, '');
+    }
+
     if (masks.length > 0 && newValue) {
-      newValue = applyMask(newValue, masks[0]);
+      newValue = applyMask(newValue, masks);
     }
 
     if (rtl && type !== 'date') {
