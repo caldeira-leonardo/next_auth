@@ -36,25 +36,13 @@ export default function FavoritePayerModal({ isOpen, onClose, payer = null, onSa
             <button type='button' className='btn-close' onClick={onClose} disabled={loading}></button>
           </div>
           <div className='modal-body'>
-            <DynamicForm
-              receipt={receipts.favorite_payer}
-              onSubmit={handleFormSubmit}
-              className='dynamic-form-modal'
-            >
+            <DynamicForm receipt={receipts.favorite_payer} onSubmit={handleFormSubmit} className='dynamic-form-modal'>
               <div className='modal-footer border-0 pt-0'>
-                <Button
-                  type='button'
-                  className='btn btn-outline-secondary'
-                  onClick={onClose}
-                  disabled={loading}
-                >
+                <Button type='button' className='btn-danger' onClick={onClose} disabled={loading}>
+                  <i className='ti ti-x me-1'></i>
                   Cancelar
                 </Button>
-                <Button
-                  type='submit'
-                  className='btn btn-primary'
-                  disabled={loading}
-                >
+                <Button type='submit' className='btn btn-primary' disabled={loading}>
                   {loading ? (
                     <>
                       <span className='spinner-border spinner-border-sm me-2' role='status'></span>

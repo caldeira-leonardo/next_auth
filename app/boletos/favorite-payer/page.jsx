@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import FavoritePayerModal from '@/components/boletos/favorite-payer-modal';
+import { favoritePayerService } from '@/lib/api/services';
 
 export default function FavoritePayerPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -10,11 +11,20 @@ export default function FavoritePayerPage() {
   const [payers, setPayers] = useState([]);
   const [editingPayer, setEditingPayer] = useState(null);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setPayers([]);
+  const getFavoritePayers = async () => {
+    try {
+      setLoading(true);
+      const response = await favoritePayerService.getFavoritePayers();
+      setPayers(response);
+    } catch (error) {
+      console.error('Error getting favorite payers:', error);
+    } finally {
       setLoading(false);
-    }, 2000);
+    }
+  };
+
+  useEffect(() => {
+    getFavoritePayers();
   }, []);
 
   const handleCreate = () => {
@@ -27,9 +37,17 @@ export default function FavoritePayerPage() {
     setIsModalOpen(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (confirm('Tem certeza que deseja excluir este pagador?')) {
-      console.log('Deletar pagador:', id);
+      try {
+        setLoading(true);
+        await favoritePayerService.deleteFavoritePayer(id);
+        await getFavoritePayers(); // Recarregar a lista
+      } catch (error) {
+        console.error('Error deleting payer:', error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -37,18 +55,16 @@ export default function FavoritePayerPage() {
     try {
       if (editingPayer) {
         console.log('Updating payer:', { ...payerData, id: editingPayer.id });
+        await favoritePayerService.updateFavoritePayer({ ...payerData, _id: editingPayer.id });
       } else {
         console.log('Creating new payer:', payerData);
-
-        const newPayer = {
-          id: Date.now(),
-          ...payerData,
-        };
-        setPayers((prev) => [...prev, newPayer]);
+        const response = await favoritePayerService.createFavoritePayer(payerData);
       }
 
       setIsModalOpen(false);
       setEditingPayer(null);
+
+      await getFavoritePayers();
 
       alert(editingPayer ? 'Pagador atualizado com sucesso!' : 'Pagador criado com sucesso!');
     } catch (error) {
@@ -86,8 +102,56 @@ export default function FavoritePayerPage() {
                   <span className='visually-hidden'>Carregando...</span>
                 </div>
               </div>
+            ) : payers.length === 0 ? (
+              <div className='text-center py-5'>
+                <div className='text-muted'>
+                  <i className='ti ti-users fs-1 mb-3 d-block'></i>
+                  <h5>Nenhum pagador encontrado</h5>
+                  <p>Clique em "Criar Pagador" para adicionar seu primeiro pagador favorito.</p>
+                </div>
+              </div>
             ) : (
-              <></>
+              <div className='table-responsive'>
+                <table className='table table-hover'>
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>CPF/CNPJ</th>
+                      <th>Email</th>
+                      <th>Telefone</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {payers.map((payer) => (
+                      <tr key={payer._id || payer.id}>
+                        <td>{payer.name}</td>
+                        <td>{payer.document}</td>
+                        <td>{payer.email}</td>
+                        <td>{payer.phone}</td>
+                        <td>
+                          <div className='btn-group' role='group'>
+                            <Button
+                              size='sm'
+                              variant='outline-primary'
+                              onClick={() => handleEdit(payer)}
+                            >
+                              <i className='ti ti-edit'></i>
+                            </Button>
+                            <Button
+                              size='sm'
+                              variant='outline-danger'
+                              onClick={() => handleDelete(payer._id || payer.id)}
+                            >
+                              <i className='ti ti-trash'></i>
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         </div>

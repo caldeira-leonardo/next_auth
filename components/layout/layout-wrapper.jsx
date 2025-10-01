@@ -1,14 +1,16 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { requiresAuth } from '@/lib/routes';
+import { requiresAuth, isPublicRoute, isProtectedRoute } from '@/lib/routes';
 import ProtectedLayout from './protected-layout';
 
 export default function LayoutWrapper({ children }) {
   const pathname = usePathname();
-  const isProtectedRoute = requiresAuth(pathname);
+  const isPublic = isPublicRoute(pathname);
+  const isProtected = isProtectedRoute(pathname);
+  const shouldShowHeader = isProtected && !isPublic;
 
-  if (isProtectedRoute) {
+  if (shouldShowHeader) {
     return <ProtectedLayout>{children}</ProtectedLayout>;
   }
 
