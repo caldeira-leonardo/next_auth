@@ -7,7 +7,7 @@ const DynamicContainer = ({ field, formHook, className = '' }) => {
 
   return (
     <div className={`${fieldClass} ${className}`} {...containerProps}>
-      {label && <label className='form-label m-0 fs-3 mb-2'>{label}</label>}
+      {label && <h5 className='text-muted fw-bold'>{label}</h5>}
 
       <>
         {items.map((item, index) => (

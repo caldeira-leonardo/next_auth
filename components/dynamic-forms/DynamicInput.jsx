@@ -41,7 +41,7 @@ const DynamicInput = ({ field, value = '', onChange, onValidate, error = [], cla
   const handleChange = (e) => {
     let newValue = e.target.value;
 
-    if (masks.includes('cpf') || masks.includes('cnpj')) {
+    if (masks.includes('cpf') || masks.includes('cnpj') || masks.includes('cep')) {
       newValue = newValue.replace(/[^\d]/g, '');
     }
 
@@ -54,7 +54,7 @@ const DynamicInput = ({ field, value = '', onChange, onValidate, error = [], cla
     }
 
     setLocalValue(newValue);
-    onChange(field_name, newValue);
+    onChange(field_name, newValue, field);
 
     if (onValidate && !isFocused) {
       const fieldWithValidators = {

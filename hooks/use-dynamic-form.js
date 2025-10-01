@@ -9,7 +9,7 @@ export const useDynamicForm = (initialReceipt = []) => {
   const [selectedFiles, setSelectedFiles] = useState({});
   const formRef = useRef(null);
 
-  const updateField = useCallback((fieldName, value) => {
+  const updateField = useCallback((fieldName, value, field = null) => {
     setFormData(prev => ({
       ...prev,
       [fieldName]: value
@@ -22,7 +22,11 @@ export const useDynamicForm = (initialReceipt = []) => {
         return newErrors;
       });
     }
-  }, [errors]);
+
+    if (field?.options?.onChange) {
+      field.options.onChange(value, formData, updateField);
+    }
+  }, [errors, formData]);
 
   const validateField = useCallback((field, value) => {
     if (!field.options?.validators) return { isValid: true, errors: [] };
