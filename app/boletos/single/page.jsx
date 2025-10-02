@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import SingleBoletoModal from '@/components/boletos/single-boleto-modal';
-import ProtectedLayout from '@/components/layout/protected-layout';
 
 export default function SingleBoletoPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -54,41 +53,39 @@ export default function SingleBoletoPage() {
   };
 
   return (
-    <ProtectedLayout>
-      <div className='row'>
-        <div className='col-12'>
-          <div className='card'>
-            <div className='card-body'>
-              <div className='d-flex justify-content-between align-items-center mb-4'>
-                <div>
-                  <h4 className='card-title mb-1'>Emissão rápida e individual para cobranças específicas</h4>
-                  <p className='text-muted mb-0'>Crie boletos individuais de forma rápida e eficiente</p>
-                </div>
-                <div>
-                  <Button onClick={handleCreateBoleto} className='btn btn-primary'>
-                    <i className='ti ti-plus me-1'></i>
-                    Criar unitário
-                  </Button>
-                </div>
+    <div className='row'>
+      <div className='col-12'>
+        <div className='card'>
+          <div className='card-body'>
+            <div className='d-flex justify-content-between align-items-center mb-4'>
+              <div>
+                <h4 className='card-title mb-1'>Emissão rápida e individual para cobranças específicas</h4>
+                <p className='text-muted mb-0'>Crie boletos individuais de forma rápida e eficiente</p>
+              </div>
+              <div>
+                <Button onClick={handleCreateBoleto} className='btn btn-primary'>
+                  <i className='ti ti-plus me-1'></i>
+                  Criar unitário
+                </Button>
               </div>
             </div>
           </div>
-
-          <div className='card'>
-            <div className='card-body'>
-              {loading ? (
-                <div className='d-flex justify-content-center align-items-center py-5'>
-                  <LoadingSpinner message='Carregando boletos...' />
-                </div>
-              ) : (
-                <></>
-              )}
-            </div>
-          </div>
-
-          <SingleBoletoModal isOpen={isModalOpen} onClose={handleModalClose} onSuccess={handleBoletoCreated} />
         </div>
+
+        <div className='card'>
+          <div className='card-body'>
+            {loading ? (
+              <div className='d-flex justify-content-center align-items-center py-5'>
+                <LoadingSpinner message='Carregando boletos...' />
+              </div>
+            ) : (
+              <></>
+            )}
+          </div>
+        </div>
+
+        <SingleBoletoModal isOpen={isModalOpen} onClose={handleModalClose} onSuccess={handleBoletoCreated} />
       </div>
-    </ProtectedLayout>
+    </div>
   );
 }
