@@ -1,21 +1,101 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { DynamicForm } from '@/components/dynamic-forms';
 import { receipts } from '@/lib/dynamic-forms/receipts';
 
 export default function SingleBoletoModal({ isOpen, onClose, onSuccess }) {
   const [loading, setLoading] = useState(false);
+  const [favoritePayers, setFavoritePayers] = useState([]);
+
+  useEffect(() => {
+    if (isOpen) {
+      loadFavoritePayers();
+    }
+  }, [isOpen]);
+
+  const loadFavoritePayers = async () => {
+    try {
+      const mockPayers = [
+        {
+          id: '1',
+          name: 'João Silva',
+          payer_name: 'João Silva',
+          payer_document: '123.456.789-00',
+          payer_phone: '(11) 99999-9999',
+          payer_email: 'joao@email.com',
+          payer_street: 'Rua das Flores',
+          payer_number: '123',
+          payer_complement: 'Apto 45',
+          payer_neighborhood: 'Centro',
+          payer_city: 'São Paulo',
+          payer_state: 'SP',
+          payer_zipcode: '01234-567',
+        },
+        {
+          id: '2',
+          name: 'Maria Santos',
+          payer_name: 'Maria Santos',
+          payer_document: '987.654.321-00',
+          payer_phone: '(11) 88888-8888',
+          payer_email: 'maria@email.com',
+          payer_street: 'Av. Paulista',
+          payer_number: '1000',
+          payer_complement: 'Sala 501',
+          payer_neighborhood: 'Bela Vista',
+          payer_city: 'São Paulo',
+          payer_state: 'SP',
+          payer_zipcode: '01310-100',
+        },
+        {
+          id: '3',
+          name: 'Pedro Oliveira',
+          payer_name: 'Pedro Oliveira',
+          payer_document: '111.222.333-44',
+          payer_phone: '(11) 77777-7777',
+          payer_email: 'pedro@email.com',
+          payer_street: 'Rua Augusta',
+          payer_number: '456',
+          payer_complement: '',
+          payer_neighborhood: 'Consolação',
+          payer_city: 'São Paulo',
+          payer_state: 'SP',
+          payer_zipcode: '01305-000',
+        },
+        {
+          id: '4',
+          name: 'Ana Costa',
+          payer_name: 'Ana Costa',
+          payer_document: '555.666.777-88',
+          payer_phone: '(11) 66666-6666',
+          payer_email: 'ana@email.com',
+          payer_street: 'Rua Oscar Freire',
+          payer_number: '789',
+          payer_complement: 'Loja 12',
+          payer_neighborhood: 'Jardins',
+          payer_city: 'São Paulo',
+          payer_state: 'SP',
+          payer_zipcode: '01426-001',
+        },
+      ];
+
+      setFavoritePayers(mockPayers);
+    } catch (error) {
+      console.error('Erro ao carregar pagadores favoritos:', error);
+    }
+  };
 
   const handleFormSubmit = async (formData) => {
     setLoading(true);
     try {
-      // API call to create boleto
+      if (formData.save_payer_as_favorite) {
+        await savePayerAsFavorite(formData);
+      }
+
       console.log('Creating single boleto:', formData);
 
-      // Simulation
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       onSuccess(formData);
       onClose();
@@ -28,7 +108,60 @@ export default function SingleBoletoModal({ isOpen, onClose, onSuccess }) {
     }
   };
 
+  const savePayerAsFavorite = async (formData) => {
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    } catch (error) {
+      console.error('Erro ao salvar pagador favorito:', error);
+      throw error;
+    }
+  };
+
+  const dynamicReceipt = receipts.single_boleto.map((field) => {
+    if (field.input_type === 'container' && field.items) {
+      return {
+        ...field,
+        items: field.items.map((item) => {
+          if (item.field_name === 'favorite_payer') {
+            return {
+              ...item,
+              options: {
+                ...item.options,
+                items: favoritePayers,
+              },
+            };
+          }
+          return item;
+        }),
+      };
+    }
+    return field;
+  });
+
   if (!isOpen) return null;
+
+  if (favoritePayers.length === 0) {
+    return (
+      <div className='modal fade show d-block' style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+        <div className='modal-dialog modal-xl'>
+          <div className='modal-content'>
+            <div className='modal-header'>
+              <h5 className='modal-title'>
+                <i className='ti ti-file-invoice me-2'></i>
+                Criar Boleto Unitário
+              </h5>
+              <button type='button' className='btn-close' onClick={onClose} disabled={loading}></button>
+            </div>
+            <div className='modal-body d-flex justify-content-center align-items-center py-5'>
+              <div className='spinner-border text-primary' role='status'>
+                <span className='visually-hidden'>Carregando...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className='modal fade show d-block' style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
@@ -43,25 +176,13 @@ export default function SingleBoletoModal({ isOpen, onClose, onSuccess }) {
           </div>
 
           <div className='modal-body'>
-            <DynamicForm
-              receipt={receipts.single_boleto}
-              onSubmit={handleFormSubmit}
-              className='dynamic-form-boleto'
-            >
+            <DynamicForm receipt={dynamicReceipt} onSubmit={handleFormSubmit} className='dynamic-form-boleto'>
               <div className='modal-footer border-0 pt-0'>
-                <Button
-                  type='button'
-                  className='btn btn-outline-secondary'
-                  onClick={onClose}
-                  disabled={loading}
-                >
+                <Button type='button' className='btn-danger' onClick={onClose} disabled={loading}>
+                  <i className='ti ti-x me-1'></i>
                   Cancelar
                 </Button>
-                <Button
-                  type='submit'
-                  className='btn btn-primary'
-                  disabled={loading}
-                >
+                <Button type='submit' className='btn btn-primary' disabled={loading}>
                   {loading ? (
                     <>
                       <span className='spinner-border spinner-border-sm me-2' role='status'></span>

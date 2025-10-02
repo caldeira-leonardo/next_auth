@@ -3,11 +3,14 @@ import DynamicSelect from '@/components/dynamic-forms/DynamicSelect';
 import DynamicFileInput from '@/components/dynamic-forms/DynamicFileInput';
 import DynamicContainer from '@/components/dynamic-forms/DynamicContainer';
 import DynamicButton from '@/components/dynamic-forms/DynamicButton';
+import DynamicAutocomplete from '@/components/dynamic-forms/DynamicAutocomplete';
+import DynamicCheckbox from '@/components/dynamic-forms/DynamicCheckbox';
 
 const DynamicField = ({
   field,
   formHook,
-  className = ''
+  className = '',
+  fillPayerData
 }) => {
   if (!field || !field.input_type) {
     console.warn('Campo inválido:', field);
@@ -49,6 +52,35 @@ const DynamicField = ({
           value={value}
           onChange={formHook.updateField}
           onValidate={formHook.validateField}
+        />
+      );
+
+    case 'input_autocomplete':
+      return (
+        <DynamicAutocomplete
+          label={field.label}
+          field_name={field.field_name}
+          options={field.options}
+          value={value}
+          onChange={formHook.updateField}
+          onValidate={formHook.validateField}
+          error={error}
+          className={className}
+          fillPayerData={fillPayerData}
+        />
+      );
+
+    case 'input_checkbox':
+      return (
+        <DynamicCheckbox
+          label={field.label}
+          field_name={field.field_name}
+          options={field.options}
+          value={value}
+          onChange={formHook.updateField}
+          onValidate={formHook.validateField}
+          error={error}
+          className={className}
         />
       );
 

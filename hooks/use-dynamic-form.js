@@ -32,6 +32,10 @@ export const useDynamicForm = (initialReceipt = []) => {
   );
 
   const validateField = useCallback((field, value) => {
+    if (!field || !field.options) {
+      return { isValid: true, errors: [] };
+    }
+
     const autoValidators = extractValidatorsFromProps(field.options?.props || [], field.options?.type);
 
     const allValidators = [...autoValidators, ...(field.options?.validators || [])];
@@ -169,6 +173,37 @@ export const useDynamicForm = (initialReceipt = []) => {
     [formData, selectedFiles, isSubmitting, validateForm]
   );
 
+  const fillPayerData = useCallback((payerData) => {
+    const payerFields = {
+      payer_name: payerData.name || payerData.payer_name,
+      payer_document: payerData.document || payerData.payer_document,
+      payer_phone: payerData.phone || payerData.payer_phone,
+      payer_email: payerData.email || payerData.payer_email,
+      payer_street: payerData.street || payerData.payer_street,
+      payer_number: payerData.number || payerData.payer_number,
+      payer_complement: payerData.complement || payerData.payer_complement,
+      payer_neighborhood: payerData.neighborhood || payerData.payer_neighborhood,
+      payer_city: payerData.city || payerData.payer_city,
+      payer_state: payerData.state || payerData.payer_state,
+      payer_zipcode: payerData.zipcode || payerData.payer_zipcode,
+    };
+
+    setFormData((prev) => ({
+      ...prev,
+      ...payerFields,
+    }));
+
+    setErrors((prev) => {
+      const newErrors = { ...prev };
+      Object.keys(payerFields).forEach((fieldName) => {
+        if (newErrors[fieldName]) {
+          delete newErrors[fieldName];
+        }
+      });
+      return newErrors;
+    });
+  }, []);
+
   const resetForm = useCallback(() => {
     setFormData({});
     setErrors({});
@@ -226,6 +261,7 @@ export const useDynamicForm = (initialReceipt = []) => {
     removeFile,
     submitForm,
     resetForm,
+    fillPayerData,
 
     // Getters
     getFieldValue,

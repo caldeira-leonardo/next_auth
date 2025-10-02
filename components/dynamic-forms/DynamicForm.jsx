@@ -3,12 +3,14 @@ import { useDynamicForm } from '@/hooks/use-dynamic-form';
 import DynamicField from '@/components/dynamic-forms/DynamicField';
 
 const DynamicForm = forwardRef(({ receipt = [], onSubmit, onReset, className = '', formProps = {}, children }, ref) => {
-  const formHook = useDynamicForm(receipt);
+  // Garantir que receipt seja um array
+  const safeReceipt = Array.isArray(receipt) ? receipt : [];
+  const formHook = useDynamicForm(safeReceipt);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const result = await formHook.submitForm(receipt, onSubmit);
+    const result = await formHook.submitForm(safeReceipt, onSubmit);
 
     return result;
   };
@@ -34,8 +36,13 @@ const DynamicForm = forwardRef(({ receipt = [], onSubmit, onReset, className = '
         noValidate
         {...formProps}
       >
-        {receipt.map((field, index) => (
-          <DynamicField key={field.field_name || `field-${index}`} field={field} formHook={formHook} />
+        {safeReceipt.map((field, index) => (
+          <DynamicField
+            key={field.field_name || `field-${index}`}
+            field={field}
+            formHook={formHook}
+            fillPayerData={formHook?.fillPayerData}
+          />
         ))}
 
         {children}
