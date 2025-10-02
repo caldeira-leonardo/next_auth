@@ -63,14 +63,13 @@ const DynamicSelect = ({
   };
 
   const renderOption = (option) => {
-    const { key, label: optionLabel, disabled = false, selected = false } = option;
+    const { key, label: optionLabel, disabled = false } = option;
 
     return (
       <option
         key={key}
         value={key}
         disabled={disabled}
-        defaultSelected={selected}
       >
         {optionLabel}
       </option>

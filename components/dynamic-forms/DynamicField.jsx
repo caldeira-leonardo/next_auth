@@ -10,7 +10,6 @@ const DynamicField = ({
   field,
   formHook,
   className = '',
-  fillPayerData
 }) => {
   if (!field || !field.input_type) {
     console.warn('Campo inválido:', field);
@@ -25,7 +24,8 @@ const DynamicField = ({
   }
 
   const value = field_name ? formHook.getFieldValue(field_name) : '';
-  const error = field_name ? formHook.getFieldError(field_name) : [];
+  const errorArray = field_name ? formHook.getFieldError(field_name) : [];
+  const error = Array.isArray(errorArray) && errorArray.length > 0 ? errorArray.join(', ') : '';
   const files = field_name ? formHook.getFieldFiles(field_name) : [];
 
   const commonProps = {
@@ -58,6 +58,7 @@ const DynamicField = ({
     case 'input_autocomplete':
       return (
         <DynamicAutocomplete
+          field={field}
           label={field.label}
           field_name={field.field_name}
           options={field.options}
@@ -66,7 +67,6 @@ const DynamicField = ({
           onValidate={formHook.validateField}
           error={error}
           className={className}
-          fillPayerData={fillPayerData}
         />
       );
 

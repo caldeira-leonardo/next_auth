@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 
 export default function DynamicAutocomplete({
+  field,
   label,
   field_name,
   options = {},
@@ -11,7 +12,6 @@ export default function DynamicAutocomplete({
   onValidate,
   error = '',
   className = '',
-  fillPayerData,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -81,18 +81,11 @@ export default function DynamicAutocomplete({
     setSelectedItem(item);
     setSearchTerm(item[displayKey]);
     setIsOpen(false);
-    onChange(field_name, item[valueKey]);
+
+    onChange(field_name, item[valueKey], field);
 
     if (onValidate) {
       onValidate(field_name, item[valueKey]);
-    }
-
-    if (onItemSelect) {
-      if (onItemSelect === 'fillPayerData' && fillPayerData) {
-        fillPayerData(item);
-      } else if (typeof onItemSelect === 'function') {
-        onItemSelect(item);
-      }
     }
   };
 

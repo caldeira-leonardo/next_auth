@@ -41,7 +41,6 @@ const DynamicForm = forwardRef(({ receipt = [], onSubmit, onReset, className = '
             key={field.field_name || `field-${index}`}
             field={field}
             formHook={formHook}
-            fillPayerData={formHook?.fillPayerData}
           />
         ))}
 
