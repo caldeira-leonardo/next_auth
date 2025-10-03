@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { DynamicForm } from '@/components/dynamic-forms';
 import { receipts } from '@/lib/dynamic-forms/receipts';
+import { favoritePayerService, boletoService } from '@/lib/api';
 
 export default function SingleBoletoModal({ isOpen, onClose, onSuccess }) {
   const [loading, setLoading] = useState(false);
@@ -94,15 +95,23 @@ export default function SingleBoletoModal({ isOpen, onClose, onSuccess }) {
       }
 
       console.log('Creating single boleto:', formData);
+      const response = await boletoService.createBoleto(formData);
+      console.log('Boleto criado com sucesso:', response);
 
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      if (response.success && formData.save_payer_as_favorite) {
+        await savePayerAsFavorite(formData);
 
-      onSuccess(formData);
-      onClose();
-      return { success: true };
+        onSuccess(response);
+        onClose();
+      }
     } catch (error) {
       console.error('Error creating boleto:', error);
-      throw error;
+
+      if (error.message.includes('pagador favorito')) {
+        throw new Error('Erro ao salvar pagador favorito. Verifique os dados e tente novamente.');
+      } else {
+        throw new Error('Erro ao criar boleto. Tente novamente.');
+      }
     } finally {
       setLoading(false);
     }
@@ -110,7 +119,26 @@ export default function SingleBoletoModal({ isOpen, onClose, onSuccess }) {
 
   const savePayerAsFavorite = async (formData) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const payerData = {
+        name: formData.payer_name,
+        document: formData.payer_document,
+        phone: formData.payer_phone,
+        email: formData.payer_email,
+        street: formData.payer_street,
+        number: formData.payer_number,
+        complement: formData.payer_complement,
+        neighborhood: formData.payer_neighborhood,
+        city: formData.payer_city,
+        state: formData.payer_state,
+        zipcode: formData.payer_zipcode,
+      };
+
+      const response = await favoritePayerService.createFavoritePayer(payerData);
+
+      if (!response.ok) {
+        const errorData = await response;
+        throw new Error(errorData.message || 'Erro ao salvar pagador favorito');
+      }
     } catch (error) {
       console.error('Erro ao salvar pagador favorito:', error);
       throw error;
@@ -142,7 +170,7 @@ export default function SingleBoletoModal({ isOpen, onClose, onSuccess }) {
 
   if (favoritePayers.length === 0) {
     return (
-      <div className='modal fade show d-block' style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+      <div className='modal fade show d-block'>
         <div className='modal-dialog modal-xl'>
           <div className='modal-content'>
             <div className='modal-header'>
@@ -164,7 +192,7 @@ export default function SingleBoletoModal({ isOpen, onClose, onSuccess }) {
   }
 
   return (
-    <div className='modal fade show d-block' style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+    <div className='modal fade show d-block'>
       <div className='modal-dialog modal-xl'>
         <div className='modal-content'>
           <div className='modal-header'>
