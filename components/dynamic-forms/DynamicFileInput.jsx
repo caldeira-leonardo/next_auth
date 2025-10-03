@@ -198,7 +198,7 @@ const DynamicFileInput = ({
           className="form-text text-danger fw-bolder fs-3"
           role="alert"
         >
-          {error_message || error[0] || 'Campo inválido'}
+          {error_message || error || 'Campo inválido'}
         </small>
       )}
     </div>
