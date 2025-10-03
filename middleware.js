@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { ROUTES } from './lib/routes';
 
-// Função para validar access token no servidor
 function validateAccessToken(accessToken) {
   if (!accessToken) {
     return { valid: false, reason: 'Token não encontrado' };
@@ -10,7 +9,6 @@ function validateAccessToken(accessToken) {
   return { valid: true };
 }
 
-// Função para renovar access token no servidor
 async function refreshAccessToken(refreshToken) {
   try {
     const decoded = JSON.parse(atob(refreshToken));
@@ -131,7 +129,6 @@ export async function middleware(request) {
       return NextResponse.redirect(loginUrl);
     }
 
-    // Verifica se o access token é válido
     const validation = validateAccessToken(accessToken);
 
     if (!validation.valid) {
