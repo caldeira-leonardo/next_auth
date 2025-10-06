@@ -1,9 +1,26 @@
 import { useState, useCallback, useRef } from 'react';
-import { generateId, labelToId, formDataToObject } from '@/lib/dynamic-forms/utils';
+import { generateId } from '@/lib/dynamic-forms/utils';
 import { runValidations, extractValidatorsFromProps } from '@/lib/dynamic-forms/validators';
 
 export const useDynamicForm = (initialReceipt = []) => {
-  const [formData, setFormData] = useState({});
+  const getInitialFormData = (receipt) => {
+    const initialData = {};
+
+    const processFields = (fields) => {
+      fields.forEach((field) => {
+        if (field.input_type === 'container' && field.items) {
+          processFields(field.items);
+        } else if (field.field_name && field.options?.defaultValue) {
+          initialData[field.field_name] = field.options.defaultValue;
+        }
+      });
+    };
+
+    processFields(receipt);
+    return initialData;
+  };
+
+  const [formData, setFormData] = useState(() => getInitialFormData(initialReceipt));
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState({});
