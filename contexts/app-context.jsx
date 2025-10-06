@@ -37,7 +37,7 @@ export function AppProvider({ children }) {
 export function useApp() {
   const context = useContext(AppContext);
   if (context === undefined) {
-    throw new Error('useApp deve ser usado dentro de um AppProvider');
+    console.error(Error('useApp deve ser usado dentro de um AppProvider'));
   }
   return context;
 }

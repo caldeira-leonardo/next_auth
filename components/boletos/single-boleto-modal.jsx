@@ -77,8 +77,7 @@ export default function SingleBoletoModal({ isOpen, onClose, onSuccess }) {
       const response = await favoritePayerService.createFavoritePayer(payerData);
 
       if (!response.ok) {
-        const errorData = await response;
-        throw new Error(errorData.message || 'Erro ao salvar pagador favorito');
+        console.error('Erro ao salvar pagador favorito:', response.message || 'Erro ao salvar pagador favorito');
       }
     } catch (error) {
       console.error('Erro ao salvar pagador favorito:', error);

@@ -66,13 +66,12 @@ export function useAuthApi() {
               router.push(finalRedirect);
             } else {
               console.error('❌ Usuário não encontrado');
-              throw new Error('Usuário não encontrado');
             }
           } catch (userError) {
-            throw userError;
+            console.error('❌ Usuário não encontrado:', userError);
           }
         } else {
-          throw new Error('Resposta inválida da API');
+          console.error('❌ Resposta inválida da API');
         }
 
         return true;
