@@ -1,31 +1,42 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import SingleBoletoModal from '@/components/boletos/single-boleto-modal';
+import { boletoService } from '@/lib/api';
+import { useToastr } from '@/hooks/use-toastr';
 
 export default function SingleBoletoPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { toastrError } = useToastr();
   const [boletosData, setBoletosData] = useState({
     success: [],
     failures: [],
   });
+  const hasLoaded = useRef(false);
 
   useEffect(() => {
-    // Simular carregamento dos dados
+    if (hasLoaded.current) return;
+    hasLoaded.current = true;
+
     const loadData = async () => {
       setLoading(true);
       try {
-        // Aqui será feita a chamada para os 2 endpoints
-        // const successData = await fetch('/api/boletos/success');
-        // const failuresData = await fetch('/api/boletos/failures');
+        const response = await boletoService.fetchBoletos();
+        console.log('response', response);
+        if (!response.ok) {
+          toastrError('Erro ao carregar dados');
+          console.log('DEU RUIM', response);
+        } else {
+          toastrError('Teste de toastr funcionando!');
+        }
 
         // Simulação temporária
         setTimeout(() => {
           setBoletosData({
-            success: [],
+            success: response,
             failures: [],
           });
           setLoading(false);
@@ -37,7 +48,7 @@ export default function SingleBoletoPage() {
     };
 
     loadData();
-  }, []);
+  }, [toastrError]);
 
   const handleCreateBoleto = () => {
     setIsModalOpen(true);
@@ -47,9 +58,9 @@ export default function SingleBoletoPage() {
     setIsModalOpen(false);
   };
 
-  const handleBoletoCreated = (newBoleto) => {
-    console.log('Novo boleto criado:', newBoleto);
-    setIsModalOpen(false);
+  const handleTestToastr = () => {
+    console.log('Teste manual do toastr');
+    toastrError('Teste manual do toastr!', 'Teste');
   };
 
   return (
@@ -63,6 +74,10 @@ export default function SingleBoletoPage() {
                 <p className='text-muted mb-0'>Crie boletos individuais de forma rápida e eficiente</p>
               </div>
               <div>
+                <Button onClick={handleTestToastr} className='btn btn-warning me-2'>
+                  <i className='ti ti-bell me-1'></i>
+                  Teste Toastr
+                </Button>
                 <Button onClick={handleCreateBoleto} className='btn btn-primary'>
                   <i className='ti ti-plus me-1'></i>
                   Criar unitário

@@ -149,34 +149,29 @@ export const useDynamicForm = (initialReceipt = []) => {
 
       setIsSubmitting(true);
 
-      try {
-        const isValid = validateForm(receipt);
+      const isValid = validateForm(receipt);
 
-        if (!isValid) {
-          console.log('Formulário inválido. Não será enviado.');
-          return { success: false, errors, message: 'Formulário contém erros. Verifique os campos destacados.' };
-        }
-
-        const submitData = { ...formData };
-
-        Object.keys(selectedFiles).forEach((fieldName) => {
-          if (selectedFiles[fieldName]?.length > 0) {
-            submitData[fieldName] = selectedFiles[fieldName].map((f) => f.file);
-          }
-        });
-
-        if (onSubmit) {
-          const result = await onSubmit(submitData);
-          return { success: true, data: result };
-        }
-
-        return { success: true, data: submitData };
-      } catch (error) {
-        console.error('Erro ao submeter formulário:', error);
-        return { success: false, error: error.message };
-      } finally {
-        setIsSubmitting(false);
+      if (!isValid) {
+        console.log('Formulário inválido. Não será enviado.');
+        return { success: false, errors, message: 'Formulário contém erros. Verifique os campos destacados.' };
       }
+
+      const submitData = { ...formData };
+
+      Object.keys(selectedFiles).forEach((fieldName) => {
+        if (selectedFiles[fieldName]?.length > 0) {
+          submitData[fieldName] = selectedFiles[fieldName].map((f) => f.file);
+        }
+      });
+
+      if (onSubmit) {
+        const result = await onSubmit(submitData);
+        console.log('Result:', result);
+        return result;
+      }
+
+      setIsSubmitting(false);
+      return { success: true, data: submitData };
     },
     [formData, selectedFiles, isSubmitting, validateForm]
   );

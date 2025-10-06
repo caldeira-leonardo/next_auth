@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import FavoritePayerModal from '@/components/boletos/favorite-payer-modal';
-import { favoritePayerService } from '@/lib/api/services';
+import { favoritePayerService } from '@/lib/api';
 
 export default function FavoritePayerPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -15,6 +15,7 @@ export default function FavoritePayerPage() {
     try {
       setLoading(true);
       const response = await favoritePayerService.getFavoritePayers();
+      console.log('Response:', response);
       setPayers(response);
     } catch (error) {
       console.error('Error getting favorite payers:', error);
@@ -131,11 +132,7 @@ export default function FavoritePayerPage() {
                         <td>{payer.phone}</td>
                         <td>
                           <div className='btn-group' role='group'>
-                            <Button
-                              size='sm'
-                              variant='outline-primary'
-                              onClick={() => handleEdit(payer)}
-                            >
+                            <Button size='sm' variant='outline-primary' onClick={() => handleEdit(payer)}>
                               <i className='ti ti-edit'></i>
                             </Button>
                             <Button
