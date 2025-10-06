@@ -40,18 +40,9 @@ export const useDynamicForm = (initialReceipt = []) => {
 
     const allValidators = [...autoValidators, ...(field.options?.validators || [])];
 
-    console.log(`Validando campo ${field.field_name}:`, {
-      value,
-      props: field.options?.props,
-      autoValidators,
-      manualValidators: field.options?.validators,
-      allValidators,
-    });
-
     if (allValidators.length === 0) return { isValid: true, errors: [] };
 
     const result = runValidations(value, allValidators);
-    console.log(`Resultado da validação para ${field.field_name}:`, result);
 
     return result;
   }, []);
