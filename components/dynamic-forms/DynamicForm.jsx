@@ -12,6 +12,11 @@ const DynamicForm = forwardRef(({ receipt = [], onSubmit, onReset, className = '
 
     const result = await formHook.submitForm(safeReceipt, onSubmit);
 
+    if (result && result.success === false) {
+      console.log('Validação falhou:', result.message);
+      return false;
+    }
+
     return result;
   };
 

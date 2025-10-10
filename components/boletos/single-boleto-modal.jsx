@@ -32,23 +32,25 @@ export default function SingleBoletoModal({ isOpen, onClose, onSuccess }) {
   const handleFormSubmit = async (formData) => {
     setLoading(true);
 
-    console.log('Creating single boleto:', formData);
-    const response = await boletoService.createBoleto(formData);
-    console.log('Response:', response);
+    try {
+      const response = await boletoService.createBoleto(formData);
+      console.log('Response:', response);
 
-    if (response) {
-      toastrSuccess('Boleto criado com sucesso!', 'Sucesso');
-      onSuccess(response);
-      onClose();
-    } else {
-      console.error('Erro ao criar boleto');
-      toastrError('Erro ao criar boleto. Tente novamente.', 'Erro');
-    }
+      if (response) {
+        toastrSuccess('Boleto criado com sucesso!', 'Sucesso');
+        onSuccess(response);
+        onClose();
+      } else {
+        console.error('Erro ao criar boleto');
+      }
 
-    setLoading(false);
-
-    if (formData.save_payer_as_favorite) {
-      await savePayerAsFavorite(formData);
+      if (formData.save_payer_as_favorite) {
+        await savePayerAsFavorite(formData);
+      }
+    } catch (error) {
+      console.error('Erro ao criar boleto:', error);
+    } finally {
+      setLoading(false);
     }
   };
 

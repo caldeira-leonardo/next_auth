@@ -153,6 +153,7 @@ export const useDynamicForm = (initialReceipt = []) => {
 
       if (!isValid) {
         console.log('Formulário inválido. Não será enviado.');
+        setIsSubmitting(false);
         return { success: false, errors, message: 'Formulário contém erros. Verifique os campos destacados.' };
       }
 
@@ -167,13 +168,14 @@ export const useDynamicForm = (initialReceipt = []) => {
       if (onSubmit) {
         const result = await onSubmit(submitData);
         console.log('Result:', result);
+        setIsSubmitting(false);
         return result;
       }
 
       setIsSubmitting(false);
       return { success: true, data: submitData };
     },
-    [formData, selectedFiles, isSubmitting, validateForm]
+    [formData, selectedFiles, isSubmitting, validateForm, errors]
   );
 
   const resetForm = useCallback(() => {

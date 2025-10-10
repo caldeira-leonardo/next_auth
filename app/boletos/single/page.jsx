@@ -58,11 +58,6 @@ export default function SingleBoletoPage() {
     setIsModalOpen(false);
   };
 
-  const handleTestToastr = () => {
-    console.log('Teste manual do toastr');
-    toastrError('Teste manual do toastr!', 'Teste');
-  };
-
   return (
     <div className='row'>
       <div className='col-12'>
@@ -74,10 +69,6 @@ export default function SingleBoletoPage() {
                 <p className='text-muted mb-0'>Crie boletos individuais de forma rápida e eficiente</p>
               </div>
               <div>
-                <Button onClick={handleTestToastr} className='btn btn-warning me-2'>
-                  <i className='ti ti-bell me-1'></i>
-                  Teste Toastr
-                </Button>
                 <Button onClick={handleCreateBoleto} className='btn btn-primary'>
                   <i className='ti ti-plus me-1'></i>
                   Criar unitário
@@ -99,7 +90,7 @@ export default function SingleBoletoPage() {
           </div>
         </div>
 
-        <SingleBoletoModal isOpen={isModalOpen} onClose={handleModalClose} onSuccess={handleBoletoCreated} />
+        <SingleBoletoModal isOpen={isModalOpen} onClose={handleModalClose} onSuccess={handleModalClose} />
       </div>
     </div>
   );

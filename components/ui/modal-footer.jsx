@@ -27,7 +27,6 @@ export default function ModalFooter({
         <Button
           type='submit'
           className={`btn btn-${confirmVariant}`}
-          onClick={onConfirm}
           disabled={loading || disabled}
         >
           {loading ? (
